@@ -38,7 +38,7 @@ public class Day01
         throw new Exception("No match");
     }
 
-    public int LastMatch(string line, Dictionary<string, int> maps)
+    private int LastMatch(string line, Dictionary<string, int> maps)
     {
         for (var i = line.Length - 1; i >= 0; i--)
         {
