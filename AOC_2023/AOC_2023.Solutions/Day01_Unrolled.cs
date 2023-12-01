@@ -51,7 +51,6 @@ public class Day01_Unrolled
             if (line[i] == 't' && line[i + 1] == 'w' && line[i + 2] == 'o') return 2;
             if (line[i] == 's' && line[i + 1] == 'i' && line[i + 2] == 'x') return 6;
             if (line[i] == 'n' && line[i + 1] == 'i' && line[i + 2] == 'n' && line[i + 3] == 'e') return 9;
-            if (line[i] == 'z' && line[i + 1] == 'e' && line[i + 2] == 'r' && line[i + 3] == 'o') return 0;
 
             if (line.Length > i + 3)
             {
