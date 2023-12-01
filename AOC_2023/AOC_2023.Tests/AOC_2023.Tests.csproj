@@ -25,4 +25,5 @@
       <ProjectReference Include="..\AOC_2023.Solutions\AOC_2023.Solutions.csproj" />
     </ItemGroup>
 
+
 </Project>
