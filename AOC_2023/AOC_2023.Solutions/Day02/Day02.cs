@@ -47,7 +47,6 @@ public class Day02
         foreach (var line in lines)
         {
             var gameId = line.Split(":")[0];
-            var id = gameId[5..];
             var draws = line.Split(": ")[1];
             var selections = draws.Split("; ");
 
