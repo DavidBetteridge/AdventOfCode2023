@@ -74,20 +74,36 @@ public class Day03
                     {
                         var lineAbove = lines[lineNumber - 1];
                         var above = ReadNumber(lineAbove, columnNumber);
-                        if (above == "") above = ReadNumber(lineAbove, columnNumber-1);
-                        if (above == "") above = ReadNumber(lineAbove, columnNumber+1);
                         if (!string.IsNullOrWhiteSpace(above))
                             numbers.Add(int.Parse(above));
+                        else
+                        {
+                            var aboveLeft = ReadNumber(lineAbove, columnNumber-1);
+                            if (!string.IsNullOrWhiteSpace(aboveLeft))
+                                numbers.Add(int.Parse(aboveLeft));
+                            
+                            var aboveRight = ReadNumber(lineAbove, columnNumber+1);
+                            if (!string.IsNullOrWhiteSpace(aboveRight))
+                                numbers.Add(int.Parse(aboveRight));
+                        }
                     }
                     
                     if (lineNumber+1 < line.Length)
                     {
                         var lineBelow = lines[lineNumber + 1];
                         var below = ReadNumber(lineBelow, columnNumber);
-                        if (below == "") below = ReadNumber(lineBelow, columnNumber-1);
-                        if (below == "") below = ReadNumber(lineBelow, columnNumber+1);
                         if (!string.IsNullOrWhiteSpace(below))
                             numbers.Add(int.Parse(below));
+                        else
+                        {
+                            var belowLeft = ReadNumber(lineBelow, columnNumber-1);
+                            if (!string.IsNullOrWhiteSpace(belowLeft))
+                                numbers.Add(int.Parse(belowLeft));
+                            
+                            var belowRight = ReadNumber(lineBelow, columnNumber+1);
+                            if (!string.IsNullOrWhiteSpace(belowRight))
+                                numbers.Add(int.Parse(belowRight));
+                        }
                     }
                     
    

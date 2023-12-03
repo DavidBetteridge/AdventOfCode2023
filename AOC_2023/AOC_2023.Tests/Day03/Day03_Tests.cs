@@ -22,4 +22,11 @@ public class Day03Tests
         var solver = new Day03();
         Assert.Equal(467835, solver.Part2("Day03/sample.txt"));
     }
+    
+    [Fact]
+    public void Test_Part2()
+    {
+        var solver = new Day03();
+        Assert.Equal(74528807, solver.Part2("Day03/input.txt"));   // 68864416 too low
+    }
 }
