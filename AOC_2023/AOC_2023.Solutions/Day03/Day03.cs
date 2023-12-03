@@ -24,9 +24,10 @@ public class Day03
                         inPartNumber = true;
                     }
                 }
-                else if (current != "" && inPartNumber)
+                else if (current != "")
                 {
-                    total += int.Parse(current);
+                    if (inPartNumber)
+                        total += int.Parse(current);
                     inPartNumber = false;
                     current = "";
                 }
