@@ -2,8 +2,8 @@ namespace AOC_2023.Solutions;
 
 public class LRParser
 {
-    private readonly string _line;
-    private int _offset = 0;
+    private string _line;
+    private int _offset;
 
 
     public LRParser(string line)
@@ -11,6 +11,13 @@ public class LRParser
         _line = line;
     }
 
+    public void Reset(string line)
+    {
+        _line = line;
+        _offset = 0;
+    }
+
+    
     public void Eat(string match)
     {
         if (_line[_offset..(_offset + match.Length)] == match)
