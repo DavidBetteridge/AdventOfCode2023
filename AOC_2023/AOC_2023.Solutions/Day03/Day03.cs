@@ -18,9 +18,9 @@ public class Day03
                     current += c;
                     if (!inPartNumber)
                     {
-                        if (check(lines, lineNumber-1, columnNumber-1) || check(lines, lineNumber-1, columnNumber) || check(lines, lineNumber-1, columnNumber+1 )
-                          ||  check(lines, lineNumber, columnNumber-1) || check(lines, lineNumber, columnNumber+1)
-                          ||  check(lines, lineNumber+1, columnNumber-1) || check(lines, lineNumber+1, columnNumber) || check(lines, lineNumber+1, columnNumber+1))
+                        if (CheckP1(lines, lineNumber-1, columnNumber-1) || CheckP1(lines, lineNumber-1, columnNumber) || CheckP1(lines, lineNumber-1, columnNumber+1 )
+                          ||  CheckP1(lines, lineNumber, columnNumber-1) || CheckP1(lines, lineNumber, columnNumber+1)
+                          ||  CheckP1(lines, lineNumber+1, columnNumber-1) || CheckP1(lines, lineNumber+1, columnNumber) || CheckP1(lines, lineNumber+1, columnNumber+1))
                         inPartNumber = true;
                     }
                 }
@@ -38,7 +38,7 @@ public class Day03
         return total;
     }
 
-    private bool check(string[] lines, int lineNumber, int columnNumber)
+    private bool CheckP1(string[] lines, int lineNumber, int columnNumber)
     {
         if (lineNumber < 0 || lineNumber >= lines.Length) return false;
         if (columnNumber < 0 || columnNumber >= lines[lineNumber].Length) return false;
@@ -46,5 +46,78 @@ public class Day03
         if (c == '.') return false;
         if (char.IsDigit(c)) return false;
         return true;
+    }
+    
+    public int Part2(string filename)
+    {
+        var result = 0;
+        var lines = File.ReadAllLines(filename);
+        for (var lineNumber = 0; lineNumber < lines.Length; lineNumber++)
+        {
+            var line = lines[lineNumber];
+            for (var columnNumber = 0; columnNumber < lines[lineNumber].Length; columnNumber++)
+            {
+                var c = line[columnNumber];
+                if (c == '*')
+                {
+                    var numbers = new List<int>();
+
+                    var left = ReadNumber(line, columnNumber-1);
+                    if (!string.IsNullOrWhiteSpace(left))
+                        numbers.Add(int.Parse(left));
+
+                    var right = ReadNumber(line, columnNumber+1);
+                    if (!string.IsNullOrWhiteSpace(right))
+                        numbers.Add(int.Parse(right));
+
+                    if (lineNumber > 0)
+                    {
+                        var lineAbove = lines[lineNumber - 1];
+                        var above = ReadNumber(lineAbove, columnNumber);
+                        if (above == "") above = ReadNumber(lineAbove, columnNumber-1);
+                        if (above == "") above = ReadNumber(lineAbove, columnNumber+1);
+                        if (!string.IsNullOrWhiteSpace(above))
+                            numbers.Add(int.Parse(above));
+                    }
+                    
+                    if (lineNumber+1 < line.Length)
+                    {
+                        var lineBelow = lines[lineNumber + 1];
+                        var below = ReadNumber(lineBelow, columnNumber);
+                        if (below == "") below = ReadNumber(lineBelow, columnNumber-1);
+                        if (below == "") below = ReadNumber(lineBelow, columnNumber+1);
+                        if (!string.IsNullOrWhiteSpace(below))
+                            numbers.Add(int.Parse(below));
+                    }
+                    
+   
+                    if (numbers.Count == 2)
+                        result += (numbers[0] * numbers[1]);
+                }
+            }
+        }
+
+        return result;
+    }
+
+    private string ReadNumber(string line, int columnNumber)
+    {
+        if (!char.IsDigit(line[columnNumber])) return "";
+        
+        // Find the start of the number?
+        var offset = -1;
+        while ((columnNumber + offset) >= 0 && char.IsDigit(line[columnNumber + offset]))
+            offset--;
+        offset++;
+        
+        // Read the number
+        var current = "";
+        while ((columnNumber + offset) < line.Length && char.IsDigit(line[columnNumber + offset]))
+        {
+            current += line[columnNumber + offset];
+            offset++;
+        }
+
+        return current;
     }
 }

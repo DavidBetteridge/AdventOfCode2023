@@ -15,4 +15,11 @@ public class Day03Tests
         var solver = new Day03();
         Assert.Equal(519444, solver.Part1("Day03/input.txt"));
     }
+    
+    [Fact]
+    public void Test_Part2_Sample()
+    {
+        var solver = new Day03();
+        Assert.Equal(467835, solver.Part2("Day03/sample.txt"));
+    }
 }
