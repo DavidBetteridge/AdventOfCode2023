@@ -67,10 +67,49 @@ public class Day04RLVector
                     matches++;
             }
             for (var nextCardOffset = 1; nextCardOffset <= matches; nextCardOffset++)
+                quantities[cardId + nextCardOffset] += quantities[cardId];
+
+            cardId++;
+        }
+
+        return quantities.Sum();
+    }
+    
+    
+    public int Part2B(string filename)
+    {
+        var cardId = 0;
+        var lines = File.ReadAllLines(filename);
+        var quantities = new int[lines.Length];
+        
+        var parser = new RLParserSpan();
+        foreach (var line in lines)
+        {
+            quantities[cardId]++;
+            parser.Reset(line);
+            var availableNumbers = new bool[100];
+
+            do
             {
-                if (cardId + nextCardOffset < lines.Length)
-                    quantities[cardId + nextCardOffset] += quantities[cardId];
-            }
+                var nextNumber = parser.EatNumber();
+                availableNumbers[nextNumber] = true;
+                parser.EatWhitespace();
+            } while (!parser.TryEat('|'));
+            parser.EatWhitespace();
+
+            var matches = 0;
+
+            do
+            {
+                var nextNumber = parser.EatNumber();
+                parser.EatWhitespace();
+                
+                if (availableNumbers[nextNumber])
+                    matches++;
+            } while (!parser.TryEat(':'));
+            
+            for (var nextCardOffset = 1; nextCardOffset <= matches; nextCardOffset++)
+                quantities[cardId + nextCardOffset] += quantities[cardId];
 
             cardId++;
         }

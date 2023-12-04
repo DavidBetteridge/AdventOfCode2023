@@ -29,4 +29,11 @@ public class Day04RLVectorTests
         var solver = new Day04RLVector();
         Assert.Equal(13114317, solver.Part2("Day04/input.txt"));
     }
+    
+    [Fact]
+    public void Test_Part2B()
+    {
+        var solver = new Day04RLVector();
+        Assert.Equal(13114317, solver.Part2B("Day04/input.txt"));
+    }
 }
