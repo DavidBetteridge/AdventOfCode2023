@@ -15,7 +15,7 @@ public class Day02_LR2
             lrParser.Eat("Game ");
             var id = lrParser.EatNumber();
             lrParser.Eat(": ");
-            while (!lrParser.EOF)
+            while (!lrParser.EOL)
             {
                 var quantity = lrParser.EatNumber();
                 lrParser.Eat(" ");
@@ -61,7 +61,7 @@ public class Day02_LR2
             lrParser.Eat("Game ");
             lrParser.EatNumber();
             lrParser.Eat(": ");
-            while (!lrParser.EOF)
+            while (!lrParser.EOL)
             {
                 var quantity = lrParser.EatNumber();
                 lrParser.Eat(" ");
