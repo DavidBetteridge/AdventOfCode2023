@@ -49,7 +49,6 @@ public class Day04
 
     public int Part2(string filename)
     {
-        var result = 0;
         var lines = File.ReadAllLines(filename);
         var quantities = new int[lines.Length];
         
