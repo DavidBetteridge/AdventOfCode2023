@@ -93,8 +93,7 @@ public class Day04RLVector
             {
                 var nextNumber = parser.EatNumber();
                 availableNumbers[nextNumber] = true;
-                parser.EatWhitespace();
-            } while (!parser.TryEat('|'));
+            } while (parser.TryEat('|'));
             parser.EatWhitespace();
 
             var matches = 0;
@@ -102,11 +101,9 @@ public class Day04RLVector
             do
             {
                 var nextNumber = parser.EatNumber();
-                parser.EatWhitespace();
-                
                 if (availableNumbers[nextNumber])
                     matches++;
-            } while (!parser.TryEat(':'));
+            } while (parser.TryEat(':'));
             
             for (var nextCardOffset = 1; nextCardOffset <= matches; nextCardOffset++)
                 quantities[cardId + nextCardOffset] += quantities[cardId];

@@ -16,6 +16,10 @@ public ref struct RLParserSpan
             length++;
         var value = int.Parse(_line[^length..]);
         _line=_line[..^(1+length)];
+        
+        while (_line.Length>=0 && char.IsWhiteSpace(_line[^1]))
+            _line=_line[..^1];
+        
         return value;
     }
 
@@ -24,11 +28,11 @@ public ref struct RLParserSpan
         if (_line.Length >= 0 && _line[^1] == match)
         {
             _line=_line[..^1];
-            return true;
+            return false;
         }
-        return false;
+        return true;
     }
-
+    
     public void EatWhitespace()
     {
         while (_line.Length>=0 && char.IsWhiteSpace(_line[^1]))

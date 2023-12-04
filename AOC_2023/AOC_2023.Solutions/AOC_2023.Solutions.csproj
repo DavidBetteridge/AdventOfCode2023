@@ -7,6 +7,10 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
+    <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+      <PlatformTarget>ARM64</PlatformTarget>
+    </PropertyGroup>
+
     <ItemGroup>
       <PackageReference Include="BenchmarkDotNet" Version="0.13.10" />
     </ItemGroup>
