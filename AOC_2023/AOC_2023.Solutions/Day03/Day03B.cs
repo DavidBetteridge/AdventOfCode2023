@@ -52,9 +52,9 @@ public class Day03B
     
     public int Part2(string filename)
     {
+        var result = 0;
         var lines = File.ReadAllLines(filename);
-        var total = 0;
-        var stars = new Dictionary<Tuple<int, int>, List<int>>();
+        var stars = new Dictionary<Tuple<int, int>, int>();
         for (var lineNumber = 0; lineNumber < lines.Length; lineNumber++)
         {
             Tuple<int,int>? starLocation = null;
@@ -85,8 +85,9 @@ public class Day03B
                     if (starLocation is not null)
                     {
                         if (!stars.ContainsKey(starLocation))
-                            stars.Add(starLocation, new List<int>());
-                        stars[starLocation].Add(int.Parse(current));
+                            stars.Add(starLocation, int.Parse(current));
+                        else
+                            result+=stars[starLocation]*int.Parse(current);
                     }
                     starLocation = null;
                     current = "";
@@ -96,20 +97,13 @@ public class Day03B
             if (current != "" && starLocation is not null)
             {
                 if (!stars.ContainsKey(starLocation))
-                    stars.Add(starLocation, new List<int>());
-                stars[starLocation].Add(int.Parse(current));
+                    stars.Add(starLocation, int.Parse(current));
+                else
+                    result+=stars[starLocation]*int.Parse(current);
             }
         }
 
-        foreach (var star in stars)
-        {
-            if (star.Value.Count == 2)
-            {
-                total += star.Value[0] * star.Value[1];
-            }
-        }
-        
-        return total;
+        return result;
     }
     
     private Tuple<int,int>? CheckP2(string[] lines, int lineNumber, int columnNumber)

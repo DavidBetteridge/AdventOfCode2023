@@ -60,7 +60,7 @@ public class Day03
                 var c = line[columnNumber];
                 if (c == '*')
                 {
-                    var numbers = new List<int>();
+                    var numbers = new List<int>(2);
 
                     var left = ReadNumber(line, columnNumber-1);
                     if (!string.IsNullOrWhiteSpace(left))

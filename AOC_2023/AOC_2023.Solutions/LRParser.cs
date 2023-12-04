@@ -46,7 +46,7 @@ public class LRParser
         return value;
     }
         
-    public bool EOF => (_offset + 1) >= _line.Length;
+    public bool EOF => (_offset + 1) > _line.Length;
 
     public bool TryEat(string match)
     {
@@ -56,5 +56,11 @@ public class LRParser
             return true;
         }
         return false;
+    }
+
+    public void EatWhitespace()
+    {
+        while (!EOF && char.IsWhiteSpace(_line[_offset]))
+            _offset++;
     }
 }
