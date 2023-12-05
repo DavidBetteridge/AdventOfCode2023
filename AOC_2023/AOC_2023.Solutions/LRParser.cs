@@ -2,13 +2,17 @@ namespace AOC_2023.Solutions;
 
 public class LRParser
 {
-    private string _line;
+    private string _line = "";
     private int _offset;
 
-
+    public LRParser()
+    {
+        Reset("");
+    }
+    
     public LRParser(string line)
     {
-        _line = line;
+        Reset(line);
     }
 
     public void Reset(string line)
@@ -16,7 +20,6 @@ public class LRParser
         _line = line;
         _offset = 0;
     }
-
     
     public void Eat(string match)
     {
