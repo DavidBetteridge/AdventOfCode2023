@@ -14,7 +14,7 @@ public class Day02_LR
             var id = lrParser.EatNumber();
             lrParser.Eat(": ");
             var invalid = false;
-            while (!lrParser.EOL)
+            while (!lrParser.EOF)
             {
                 do
                 {
@@ -32,7 +32,7 @@ public class Day02_LR
                     if (colour == "blue" && quantity > 14)
                         invalid = true;
                     
-                } while (!lrParser.EOL && !lrParser.TryEat("; "));
+                } while (!lrParser.EOF && !lrParser.TryEat("; "));
             }
 
             if (!invalid)
@@ -55,7 +55,7 @@ public class Day02_LR
             var maxRed = 0;
             var maxGreen = 0;
             var maxBlue = 0;
-            while (!lrParser.EOL)
+            while (!lrParser.EOF)
             {
                 do
                 {
@@ -73,7 +73,7 @@ public class Day02_LR
                     if (colour == "blue")
                         maxBlue = Math.Max(maxBlue, quantity);
                     
-                } while (!lrParser.EOL && !lrParser.TryEat("; "));
+                } while (!lrParser.EOF && !lrParser.TryEat("; "));
             }
             result += (maxRed * maxGreen * maxBlue);
         }

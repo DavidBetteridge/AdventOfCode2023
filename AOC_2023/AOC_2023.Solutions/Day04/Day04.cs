@@ -27,7 +27,7 @@ public class Day04
             }
             lrParser.EatWhitespace();
             
-            while (!lrParser.EOL)
+            while (!lrParser.EOF)
             {
                 var nextNumber = lrParser.EatNumber();
                 availableNumbers.Add(nextNumber);
@@ -74,7 +74,7 @@ public class Day04
             }
             lrParser.EatWhitespace();
             
-            while (!lrParser.EOL)
+            while (!lrParser.EOF)
             {
                 var nextNumber = lrParser.EatNumber();
                 availableNumbers.Add(nextNumber);

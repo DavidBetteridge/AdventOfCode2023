@@ -21,6 +21,13 @@ public class LRParser
         _offset = 0;
     }
     
+    public void Eat(char match)
+    {
+        if (_line[_offset] == match)
+            _offset += 1;
+        else
+            throw new Exception($"{match} not found at position {_offset}");
+    }
     public void Eat(string match)
     {
         if (_line[_offset..(_offset + match.Length)] == match)
@@ -29,6 +36,15 @@ public class LRParser
             throw new Exception($"{match} not found at position {_offset}");
     }
 
+    public ulong EatULong()
+    {
+        var length = 0;
+        while ((_offset + length < _line.Length) && char.IsDigit(_line[_offset+length]))
+            length++;
+        var value = ulong.Parse(_line[_offset..(_offset + length)]);
+        _offset += length;
+        return value;
+    }
     public int EatNumber()
     {
         var length = 0;
@@ -49,11 +65,21 @@ public class LRParser
         return value;
     }
         
-    public bool EOL => (_offset + 1) > _line.Length;
+    public bool EOF => (_offset + 1) > _line.Length;
 
+    public bool TryEat(char match)
+    {
+        if (!EOF && _line[_offset] == match)
+        {
+            _offset += 1;
+            return true;
+        }
+        return false;
+    }
+    
     public bool TryEat(string match)
     {
-        if (!EOL && _line[_offset..(_offset + match.Length)] == match)
+        if (!EOF && _line[_offset..(_offset + match.Length)] == match)
         {
             _offset += match.Length;
             return true;
@@ -63,7 +89,7 @@ public class LRParser
 
     public void EatWhitespace()
     {
-        while (!EOL && char.IsWhiteSpace(_line[_offset]))
+        while (!EOF && _line[_offset] == ' ')
             _offset++;
     }
 }

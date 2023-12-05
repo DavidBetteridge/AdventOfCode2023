@@ -6,7 +6,14 @@ public class Day05Tests
     public void Test_Part1_Sample()
     {
         var solver = new Day05();
-        Assert.Equal(35, solver.Part1("Day05/sample.txt"));
+        Assert.Equal((ulong)35, solver.Part1("Day05/sample.txt"));
+    }
+    
+    [Fact]
+    public void Test_Part1()
+    {
+        var solver = new Day05();
+        Assert.Equal((ulong)31599214, solver.Part1("Day05/input.txt"));
     }
     
     // [Fact]
