@@ -1,11 +1,11 @@
 namespace AOC_2023.Solutions;
 
-public class Day06
+public class Day06Span
 {
     public int Part1(string filename)
     {
         var text = File.ReadAllText(filename);
-        var lrParser = new LRParser(text);
+        var lrParser = new LRParserSpan(text);
 
         var times = new List<int>();
         lrParser.Eat("Time:");
@@ -51,7 +51,7 @@ public class Day06
     public int Part2(string filename)
     {
         var text = File.ReadAllText(filename);
-        var lrParser = new LRParser(text);
+        var lrParser = new LRParserSpan(text);
 
         var timeStr = "";
         lrParser.Eat("Time:");
@@ -73,16 +73,20 @@ public class Day06
         } while (!lrParser.EOF);
         var distance = ulong.Parse(distanceStr);
 
- 
-        var numberOfWins = 0;
+        ulong numberOfWins = 0;
+        ulong left = 0;
         for (ulong delay = 0; delay < time; delay++)
         {
             if (delay * (time - delay) > distance)
                 numberOfWins++;
             else if (numberOfWins > 0)
                 break;
+            
+            if (left == 0 && numberOfWins > 0)
+                left = delay;
         }
-        
-        return numberOfWins;
+
+        var right = time - left - numberOfWins;
+        return (int)numberOfWins;
     }
 }
