@@ -61,7 +61,7 @@ public class Day06Span
             timeStr += lrParser.EatWord();
             lrParser.EatWhitespace();
         } while (!lrParser.TryEat('\n'));
-        var time = ulong.Parse(timeStr);
+        var time = long.Parse(timeStr);
         
         var distanceStr = "";
         lrParser.Eat("Distance:");
@@ -71,15 +71,10 @@ public class Day06Span
             distanceStr += lrParser.EatWord();
             lrParser.EatWhitespace();
         } while (!lrParser.EOF);
-        var distance = ulong.Parse(distanceStr);
-
-        ulong firstWin = 0;
-        for (firstWin = 0; firstWin < time; firstWin++)
-        {
-            if (firstWin * (time - firstWin) > distance)
-                break;
-        }
-
+        var distance = long.Parse(distanceStr);
+        
+        var firstWin= ((-time + (int) (Math.Sqrt((time * time) - (4 * -1 * -distance)))) / (2 * -1));
+        
         return (int)(time - firstWin - firstWin)+1;
     }
 }
