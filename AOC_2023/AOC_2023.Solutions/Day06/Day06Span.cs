@@ -73,20 +73,20 @@ public class Day06Span
         } while (!lrParser.EOF);
         var distance = ulong.Parse(distanceStr);
 
-        ulong numberOfWins = 0;
-        ulong left = 0;
-        for (ulong delay = 0; delay < time; delay++)
+        ulong firstWin = 0;
+        for (firstWin = 0; firstWin < time; firstWin++)
         {
-            if (delay * (time - delay) > distance)
-                numberOfWins++;
-            else if (numberOfWins > 0)
+            if (firstWin * (time - firstWin) > distance)
                 break;
-            
-            if (left == 0 && numberOfWins > 0)
-                left = delay;
         }
 
-        var right = time - left - numberOfWins;
-        return (int)numberOfWins;
+        ulong lastWin = 0;
+        for (lastWin = time - 1; lastWin != 0; lastWin--)
+        {
+            if (lastWin * (time - lastWin) > distance)
+                break;   
+        }
+
+        return (int)(lastWin - firstWin)+1;
     }
 }
