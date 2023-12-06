@@ -80,13 +80,6 @@ public class Day06Span
                 break;
         }
 
-        ulong lastWin = 0;
-        for (lastWin = time - 1; lastWin != 0; lastWin--)
-        {
-            if (lastWin * (time - lastWin) > distance)
-                break;   
-        }
-
-        return (int)(lastWin - firstWin)+1;
+        return (int)(time - firstWin - firstWin)+1;
     }
 }
