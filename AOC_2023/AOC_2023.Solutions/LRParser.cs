@@ -58,7 +58,7 @@ public class LRParser
     public string EatWord()
     {
         var length = 0;
-        while ((_offset + length < _line.Length) && char.IsLetter(_line[_offset+length]))
+        while ((_offset + length < _line.Length) && char.IsLetterOrDigit(_line[_offset+length]))
             length++;
         var value = _line[_offset..(_offset + length)];
         _offset += length;

@@ -1,5 +1,3 @@
-using System.Runtime.InteropServices.JavaScript;
-
 namespace AOC_2023.Solutions;
 
 public class Day06
@@ -36,7 +34,7 @@ public class Day06
             var distance = distances[gameNumber];
             var time = times[gameNumber];
             var numberOfWins = 0;
-            for (int delay = 0; delay < time; delay++)
+            for (var delay = 0; delay < time; delay++)
             {
                 var timeRemaining = time - delay;
                 if (delay * timeRemaining > distance)
@@ -46,5 +44,42 @@ public class Day06
         }
         
         return total;
+    }
+
+    public int Part2(string filename)
+    {
+        var text = File.ReadAllText(filename);
+        var lrParser = new LRParser(text);
+
+        var timeStr = "";
+        lrParser.Eat("Time:");
+        lrParser.EatWhitespace();
+        do
+        {
+            timeStr += lrParser.EatWord();
+            lrParser.EatWhitespace();
+        } while (!lrParser.TryEat('\n'));
+        var time = ulong.Parse(timeStr);
+        
+        var distanceStr = "";
+        lrParser.Eat("Distance:");
+        lrParser.EatWhitespace();
+        do
+        {
+            distanceStr += lrParser.EatWord();
+            lrParser.EatWhitespace();
+        } while (!lrParser.EOF);
+        var distance = ulong.Parse(distanceStr);
+
+ 
+        ulong numberOfWins = 0;
+        for (ulong delay = 0; delay < time; delay++)
+        {
+            var timeRemaining = time - delay;
+            if (delay * timeRemaining > distance)
+                numberOfWins++;
+        }
+        
+        return (int)numberOfWins;
     }
 }
