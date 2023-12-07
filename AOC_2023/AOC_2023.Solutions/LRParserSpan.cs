@@ -69,4 +69,11 @@ public ref struct LRParserSpan
         while (!EOF && _line[0] == ' ')
             _line = _line[1..];
     }
+
+    public char EatChar()
+    {
+        var c = _line[0];
+        _line = _line[1..];
+        return c;
+    }
 }
