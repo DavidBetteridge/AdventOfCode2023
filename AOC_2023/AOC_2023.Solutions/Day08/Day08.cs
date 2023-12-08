@@ -4,10 +4,10 @@ public class Day08
 {
     private struct Rule
     {
-        public string Start { get; set; }
         public string LHS { get; set; }
         public string RHS { get; set; }
     }
+
     public int Part1(string filename)
     {
         var lines = File.ReadAllLines(filename);
@@ -28,7 +28,7 @@ public class Day08
             lrParser.EatWhitespace();
             var right = lrParser.EatWord();
             lrParser.Eat(')');
-            rules.Add(start, new Rule{Start = start, LHS = left, RHS = right});
+            rules.Add(start, new Rule { LHS = left, RHS = right });
         }
 
         var moves = 0;
@@ -45,14 +45,8 @@ public class Day08
 
         return moves;
     }
-    
-    private record Ghost
-    {
-        public ulong MovesMade { get; set; }
-        public string CurrentLocation { get; set; }
-    }
-    
-    public ulong Part2(string filename)
+
+    public long Part2(string filename)
     {
         var lines = File.ReadAllLines(filename);
         var lrParser = new LRParserSpan();
@@ -72,75 +66,48 @@ public class Day08
             lrParser.EatWhitespace();
             var right = lrParser.EatWord();
             lrParser.Eat(')');
-            rules.Add(start, new Rule{Start = start, LHS = left, RHS = right});
+            rules.Add(start, new Rule { LHS = left, RHS = right });
         }
-
-        // One ghost per node ending in a A
-        var ghosts = rules.Keys.Where(r => r.EndsWith('A'))
-                               .Select(r => new Ghost { MovesMade = 0, CurrentLocation = r })
-                               .ToList();
         
-        // Move each ghost until it's on a terminal
-        var minMoves = ulong.MaxValue;
-        ulong maxMoves = 0;
-        foreach (var ghost in ghosts)
+        var y = 0L;
+        foreach (var ghost in rules.Keys.Where(r => r.EndsWith('A')))
         {
-            while (!ghost.CurrentLocation.EndsWith('Z'))
+            var currentLocation = ghost;
+            var offset = 0;
+
+            // Move each ghost until it's on a terminal
+            while (!currentLocation.EndsWith('Z'))
             {
-                var nextMove = instructions[(int)ghost.MovesMade % instructions.Length];
+                var nextMove = instructions[offset % instructions.Length];
                 if (nextMove == 'L')
-                    ghost.CurrentLocation = rules[ghost.CurrentLocation].LHS;
+                    currentLocation = rules[currentLocation].LHS;
                 else
-                    ghost.CurrentLocation = rules[ghost.CurrentLocation].RHS;
-                ghost.MovesMade++;
+                    currentLocation = rules[currentLocation].RHS;
+                offset++;
             }
 
-            minMoves = Math.Min(minMoves, ghost.MovesMade);
-            maxMoves = Math.Max(maxMoves, ghost.MovesMade);
+            y = y == 0 ? offset : Lcm(y, offset);
         }
 
-        Dictionary<(string currentLocation, int numberOfMoves), (string newLocation, int movesNeeded)> cache = new();
-        while (minMoves != maxMoves)
-        {
-            foreach (var ghost in ghosts.Where(g => g.MovesMade < maxMoves))
-            {
-                MoveGhostToNextTerminal(instructions, ghost, rules, cache);
-
-                maxMoves = Math.Max(maxMoves, ghost.MovesMade);
-            }
-
-            minMoves = ghosts.MinBy(g => g.MovesMade)?.MovesMade??0;
-        }
-  
-
-        return maxMoves;
+        return y;
     }
 
-    private static void MoveGhostToNextTerminal(string instructions, Ghost ghost, 
-                                                Dictionary<string, Rule> rules,
-                                                Dictionary<(string currentLocation,int numberOfMoves),(string newLocation,int movesNeeded)> cache)
+    private long Gcd(long a, long b)
     {
-        var cacheKey = (ghost.CurrentLocation, (int)(ghost.MovesMade % (ulong)instructions.Length));
-        if (cache.TryGetValue(cacheKey, out var movement))
+        while (true)
         {
-            ghost.CurrentLocation = movement.newLocation;
-            ghost.MovesMade += (ulong)movement.movesNeeded;
+            if (b == 0) return a;
+            var a1 = a;
+            a = b;
+            b = a1 % b;
         }
+    }
+
+    private long Lcm(long a, long b)
+    {
+        if (a > b)
+            return (a / Gcd(a, b)) * b;
         else
-        {
-            var movesNeeded = 0;
-            do
-            {
-                movesNeeded++;
-                var nextMove = instructions[(int)(ghost.MovesMade % (ulong)instructions.Length)];
-                if (nextMove == 'L')
-                    ghost.CurrentLocation = rules[ghost.CurrentLocation].LHS;
-                else
-                    ghost.CurrentLocation = rules[ghost.CurrentLocation].RHS;
-                ghost.MovesMade++;
-            } while (!ghost.CurrentLocation.EndsWith('Z'));
-            
-            cache.Add(cacheKey, (ghost.CurrentLocation, movesNeeded));
-        }
+            return (b / Gcd(a, b)) * a;
     }
 }

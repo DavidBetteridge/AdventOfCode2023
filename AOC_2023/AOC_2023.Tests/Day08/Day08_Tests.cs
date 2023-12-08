@@ -27,13 +27,13 @@ public class Day08Tests
     public void Test_Part2_Sample()
     {
         var solver = new Day08();
-        Assert.Equal((ulong)6, solver.Part2("Day08/sample3.txt"));
+        Assert.Equal(6, solver.Part2("Day08/sample3.txt"));
     }
     
     [Fact]
     public void Test_Part2()
     {
         var solver = new Day08();
-        Assert.Equal((ulong)17099847107071, solver.Part2("Day08/input.txt"));
+        Assert.Equal(17099847107071, solver.Part2("Day08/input.txt"));
     }
 }
