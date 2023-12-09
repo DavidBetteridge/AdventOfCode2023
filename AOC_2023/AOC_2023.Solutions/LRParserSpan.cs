@@ -22,10 +22,18 @@ public ref struct LRParserSpan
             throw new Exception($"{match} not found.");
     }
 
+    public void Eat(char match)
+    {
+        if (_line[0] == match)
+            _line = _line[1..];
+        else
+            throw new Exception($"{match} not found.");
+    }
+    
     public int EatNumber()
     {
         var length = 0;
-        while (length < _line.Length && char.IsDigit(_line[length]))
+        while (length < _line.Length && (char.IsDigit(_line[length]) || _line[length] == '-' ))
             length++;
         var value = int.Parse(_line[..length]);
         _line = _line[length..];
