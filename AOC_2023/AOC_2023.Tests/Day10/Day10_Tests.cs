@@ -6,14 +6,14 @@ public class Day10Tests
     public void Test_Part1_Sample()
     {
         var solver = new Day10();
-        Assert.Equal(114, solver.Part1("Day0/sample.txt"));
+        Assert.Equal(8, solver.Part1("Day10/sample.txt"));
     }
 
     [Fact]
     public void Test_Part1()
     {
         var solver = new Day10();
-        Assert.Equal(1938731307, solver.Part1("Day10/input.txt"));
+        Assert.Equal(6864, solver.Part1("Day10/input.txt"));
     }
     
     // [Fact]
