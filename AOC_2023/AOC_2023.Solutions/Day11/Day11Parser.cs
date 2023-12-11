@@ -50,7 +50,7 @@ public class Day11Parser
 
         var gs = galaxiesRow.Count;
         var rows = galaxiesRow.Select(r => r + (increase*rowOffsets[r])).ToArray();
-        var cols = galaxiesColumn.Select(r => r + (increase*columnOffsets[r])).ToArray();
+        var cols = galaxiesColumn.Select(r => r + (increase*columnOffsets[r])).Order().ToArray();
         
         var result = 0L;
 
@@ -58,8 +58,8 @@ public class Day11Parser
         {
             result += rows[i+1] * (i+1);
             result += -rows[i] * (gs-i-1);
-            for (var j = i+1; j < gs; j++)
-                result += Math.Abs(cols[i] - cols[j]);
+            result += cols[i+1] * (i+1);
+            result += -cols[i] * (gs-i-1);
         }
         return result;
     }
