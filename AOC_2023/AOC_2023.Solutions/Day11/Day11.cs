@@ -4,10 +4,11 @@ public class Day11
 {
     private class Location
     {
-        public int ColumnNumber { get; set; }
-        public int RowNumber { get; set; }
+        public long ColumnNumber { get; set; }
+        public long RowNumber { get; set; }
     }
-    public int Part1(string filename)
+    
+    public long Part1And2(int increase, string filename)
     {
         var universe = File.ReadAllLines(filename);
         var galaxies = new List<Location>();
@@ -23,7 +24,7 @@ public class Day11
         }
         
         // Expand empty rows
-        var movedDown = 0;
+        var movedDown = 0L;
         for (var rowNumber = 0; rowNumber < universe.Length; rowNumber++)
         {
             if (universe[rowNumber].IndexOf('#') == -1)
@@ -32,14 +33,14 @@ public class Day11
                 foreach (var galaxy in galaxies)
                 {
                     if (galaxy.RowNumber > (rowNumber+movedDown))
-                        galaxy.RowNumber++;
+                        galaxy.RowNumber+=increase;
                 }
-                movedDown++;
+                movedDown+=increase;
             }
         }
         
         // Expand empty columns
-        var moved = 0;
+        var moved = 0L;
         for (var columnNumber = 0; columnNumber < universe[0].Length; columnNumber++)
         {
             if (universe.All(row => row[columnNumber] != '#'))
@@ -48,14 +49,14 @@ public class Day11
                 foreach (var galaxy in galaxies)
                 {
                     if (galaxy.ColumnNumber > columnNumber+moved)
-                        galaxy.ColumnNumber++;
+                        galaxy.ColumnNumber+=increase;
                 }
                 
-                moved++;  
+                moved+=increase;  
             }
         }
 
-        var result = 0;
+        var result = 0L;
         for (var i = 0; i < galaxies.Count-1; i++)
         {
             for (var j = i+1; j < galaxies.Count; j++)
