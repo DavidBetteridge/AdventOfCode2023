@@ -1,5 +1,6 @@
 using AOC_2023.Solutions;
 using BenchmarkDotNet.Running;
 
-BenchmarkRunner.Run<Day09BenchmarkTests>();
+BenchmarkRunner.Run<Day11BenchmarkTests>();
+
 
