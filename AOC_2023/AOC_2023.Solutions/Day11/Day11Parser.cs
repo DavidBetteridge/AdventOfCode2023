@@ -2,72 +2,131 @@ namespace AOC_2023.Solutions;
 
 public class Day11Parser
 {
-    private class Location
-    {
-        public long ColumnNumber { get; set; }
-        public long RowNumber { get; set; }
-    }
-    
+   
     public long Part1And2(int increase, string filename)
     {
         var lines = File.ReadAllLines(filename);
-        var galaxies = new List<Location>();
-        var parser = new LRParserSpan();
+        var galaxiesRow = new List<uint>();
+        var galaxiesColumn = new List<uint>();
 
         var numberOfRows = lines.Length;
         var numberOfColumns = lines[0].Length;
-        var populatedColumns =new bool[numberOfColumns];
+        var columnOffsets = new int[numberOfColumns];
+        var rowOffsets = new int[numberOfColumns];
 
-        var movedDown = 0L;
+        var movedDown = 0;
         for (var rowNumber = 0; rowNumber < numberOfRows; rowNumber++)
         {
-            parser.Reset(lines[rowNumber]);
-            var columnNumber = 0;
             var populated = false;
-            do
+            for (var columnNumber = 0; columnNumber < numberOfColumns; columnNumber++)
             {
-                if (parser.EatChar() == '#')
+                if (lines[rowNumber][columnNumber] == '#')
                 {
-                    galaxies.Add(new Location { ColumnNumber = columnNumber, RowNumber = rowNumber+movedDown });
+                    galaxiesRow.Add((uint)rowNumber);
+                    galaxiesColumn.Add((uint)columnNumber);
                     populated = true;
-                    populatedColumns[columnNumber] = true;
+                    columnOffsets[columnNumber] = 1;
                 }
+            }
 
-                columnNumber++;
-            } while (!parser.EOF);
-
+            rowOffsets[rowNumber] = movedDown;
             if (!populated)
-                movedDown+=increase;
+                movedDown += 1;
         }
         
-        // Expand empty columns
-        var moved = 0L;
+        var columnOffset = 0;
         for (var columnNumber = 0; columnNumber < numberOfColumns; columnNumber++)
         {
-            if (!populatedColumns[columnNumber])
+            if (columnOffsets[columnNumber] == 0)
             {
-                // This column is empty,  so any galaxy after this one needs to be moved right one space
-                foreach (var galaxy in galaxies)
-                {
-                    if (galaxy.ColumnNumber > columnNumber+moved)
-                        galaxy.ColumnNumber+=increase;
-                }
-                
-                moved+=increase;  
+                columnOffsets[columnNumber] = columnOffset;
+                columnOffset+=1;
+            }
+            else
+            {
+                columnOffsets[columnNumber] = columnOffset;
             }
         }
 
+        var gs = galaxiesRow.Count;
+        //var cells = new long[gs * 2];
+        
+        var rows = galaxiesRow.Select(r => r + (increase*rowOffsets[r]));
+        var cols = galaxiesColumn.Select(r => r + (increase*columnOffsets[r]));
+        var cells = rows.Concat(cols).ToArray();
+        
+        // for (var i = 0; i<gs; i++)
+        // {
+        //     cells[i] = galaxiesRow[i] + (increase * rowOffsets[galaxiesRow[i]]);
+        //     cells[i+gs] = galaxiesColumn[i] + (increase * columnOffsets[galaxiesColumn[i]]);
+        // }
+        
         var result = 0L;
-        for (var i = 0; i < galaxies.Count-1; i++)
+        
+        for (var i = 0; i < gs-1; i++)
         {
-            for (var j = i+1; j < galaxies.Count; j++)
+            for (var j = i+1; j < gs; j++)
+                result += cells[j] - cells[i] + Math.Abs(cells[i+gs] - cells[j+gs]);
+        }
+        return result;
+    }
+    
+    
+    public long Part1And2B(int increase, string filename)
+    {
+        var lines = File.ReadAllLines(filename);
+        var galaxiesRow = new List<uint>();
+        var galaxiesColumn = new List<uint>();
+
+        var numberOfRows = lines.Length;
+        var numberOfColumns = lines[0].Length;
+        var columnOffsets = new int[numberOfColumns];
+        var rowOffsets = new int[numberOfColumns];
+
+        var movedDown = 0;
+        for (var rowNumber = 0; rowNumber < numberOfRows; rowNumber++)
+        {
+            var populated = false;
+            for (var columnNumber = 0; columnNumber < numberOfColumns; columnNumber++)
             {
-                var distance = galaxies[j].RowNumber - galaxies[i].RowNumber +
-                               Math.Abs(galaxies[j].ColumnNumber - galaxies[i].ColumnNumber);
-                result += distance;
+                if (lines[rowNumber][columnNumber] == '#')
+                {
+                    galaxiesRow.Add((uint)rowNumber);
+                    galaxiesColumn.Add((uint)columnNumber);
+                    populated = true;
+                    columnOffsets[columnNumber] = 1;
+                }
             }
+
+            rowOffsets[rowNumber] = movedDown;
+            if (!populated)
+                movedDown += 1;
         }
         
+        var columnOffset = 0;
+        for (var columnNumber = 0; columnNumber < numberOfColumns; columnNumber++)
+        {
+            if (columnOffsets[columnNumber] == 0)
+            {
+                columnOffsets[columnNumber] = columnOffset;
+                columnOffset+=1;
+            }
+            else
+            {
+                columnOffsets[columnNumber] = columnOffset;
+            }
+        }
+
+        var rows = galaxiesRow.Select(r => r + (increase*rowOffsets[r])).ToArray();
+        var cols = galaxiesColumn.Select(r => r + (increase*columnOffsets[r])).ToArray();
+
+        var result = 0L;
+        var gs = rows.Length;
+        for (var i = 0; i < gs-1; i++)
+        {
+            for (var j = i+1; j < gs; j++)
+                result += rows[j] - rows[i] + Math.Abs(cols[i] - cols[j]);
+        }
         return result;
     }
 }
