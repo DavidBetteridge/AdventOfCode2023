@@ -49,24 +49,17 @@ public class Day11Parser
         }
 
         var gs = galaxiesRow.Count;
-        //var cells = new long[gs * 2];
-        
-        var rows = galaxiesRow.Select(r => r + (increase*rowOffsets[r]));
-        var cols = galaxiesColumn.Select(r => r + (increase*columnOffsets[r]));
-        var cells = rows.Concat(cols).ToArray();
-        
-        // for (var i = 0; i<gs; i++)
-        // {
-        //     cells[i] = galaxiesRow[i] + (increase * rowOffsets[galaxiesRow[i]]);
-        //     cells[i+gs] = galaxiesColumn[i] + (increase * columnOffsets[galaxiesColumn[i]]);
-        // }
+        var rows = galaxiesRow.Select(r => r + (increase*rowOffsets[r])).ToArray();
+        var cols = galaxiesColumn.Select(r => r + (increase*columnOffsets[r])).ToArray();
         
         var result = 0L;
-        
+
         for (var i = 0; i < gs-1; i++)
         {
+            result += rows[i+1] * (i+1);
+            result += -rows[i] * (gs-i-1);
             for (var j = i+1; j < gs; j++)
-                result += cells[j] - cells[i] + Math.Abs(cells[i+gs] - cells[j+gs]);
+                result += Math.Abs(cols[i] - cols[j]);
         }
         return result;
     }
