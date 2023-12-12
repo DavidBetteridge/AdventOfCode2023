@@ -30,11 +30,4 @@ public class Day11ParserTests
         var solver = new Day11Parser();
         Assert.Equal(611998089572, solver.Part1And2(1000000-1, "Day11/input.txt"));
     }
-    
-    [Fact]
-    public void Test_Part2B()
-    {
-        var solver = new Day11Parser();
-        Assert.Equal(611998089572, solver.Part1And2B(1000000-1, "Day11/input.txt"));
-    }
 }

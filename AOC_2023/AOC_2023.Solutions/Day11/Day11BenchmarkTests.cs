@@ -25,10 +25,4 @@ public class Day11BenchmarkTests
         var solver = new Day11Parser();
         solver.Part1And2(1000000-1,"/Users/davidbetteridge/Personal/AdventOfCode2023/AOC_2023/AOC_2023.Tests/Day11/input.txt");
     }
-    [Benchmark]
-    public void Part2ParserB()
-    {
-        var solver = new Day11Parser();
-        solver.Part1And2B(1000000-1,"/Users/davidbetteridge/Personal/AdventOfCode2023/AOC_2023/AOC_2023.Tests/Day11/input.txt");
-    }
 }
