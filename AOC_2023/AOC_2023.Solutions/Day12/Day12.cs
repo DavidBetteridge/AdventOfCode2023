@@ -6,7 +6,7 @@ public class Day12
     {
         var lines = File.ReadAllLines(filename);
         var solutions = 0L;
-        var cache = new Dictionary<long, long>();
+        var cache = new Dictionary<uint, long>();
         foreach (var line in lines)
         {
             var records = line.Split(' ')[0];
@@ -25,15 +25,15 @@ public class Day12
                 recordsDuplicated += $"?{records}";
             }
             cache.Clear();
-            solutions += Solve(recordsDuplicated.AsSpan(), checksumsDuplicated, cache);
+            solutions += Solve(recordsDuplicated, checksumsDuplicated, cache);
         }
 
         return solutions;
     }
 
-    private long Solve(ReadOnlySpan<char> records, ReadOnlySpan<char> checksumsExpanded, Dictionary<long, long> cache)
+    private long Solve(ReadOnlySpan<char> records, ReadOnlySpan<char> checksumsExpanded, Dictionary<uint, long> cache)
     {
-        var cacheKey = (records.Length << 16) + checksumsExpanded.Length;
+        var cacheKey = (uint)((records.Length << 7) + checksumsExpanded.Length);
         if (cache.TryGetValue(cacheKey, out var x))
             return x;
 
@@ -43,7 +43,7 @@ public class Day12
             return 1;
         }
 
-        if (records.IsEmpty || checksumsExpanded.IsEmpty)
+        if (records.IsEmpty)
         {
             cache.Add(cacheKey, 0);
             return 0; //failed
