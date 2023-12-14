@@ -58,14 +58,40 @@ public class Day14
         for (var cycle = 0; cycle < 1000000000; cycle++)
         {
             var cacheKey = "";
+            // for (var rowNumber = 0; rowNumber < numberOfRows; rowNumber++)
+            // {
+            //     for (var columnNumber = 0; columnNumber < numberOfColumns; columnNumber++)
+            //     {
+            //         cacheKey += grid[columnNumber, rowNumber];
+            //     }
+            // }
+
             for (var rowNumber = 0; rowNumber < numberOfRows; rowNumber++)
             {
+                var count = 0;
                 for (var columnNumber = 0; columnNumber < numberOfColumns; columnNumber++)
                 {
-                    cacheKey += grid[columnNumber, rowNumber];
+                    if (grid[columnNumber, rowNumber] == Ball)
+                        count++;
                 }
+
+                cacheKey += count;
             }
 
+            for (var columnNumber = 0; columnNumber < numberOfColumns; columnNumber++)
+            
+            {
+                var count = 0;
+                for (var rowNumber = 0; rowNumber < numberOfRows; rowNumber++)    
+                {
+                    if (grid[columnNumber, rowNumber] == Ball)
+                        count++;
+                }
+
+                cacheKey += count;
+            }
+            
+            
             if (cache.TryGetValue(cacheKey, out var warmup))
             {
                 var cycleSize = cycle - warmup;
