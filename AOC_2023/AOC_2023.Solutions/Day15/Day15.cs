@@ -14,8 +14,8 @@ public class Day15
             do
             {
                 currentValue += parser.EatChar();
-                currentValue *= 17;
-                currentValue %= 256;
+                currentValue += currentValue << 4;
+                currentValue &= 0b1111_1111;
             } while (!parser.TryEat(',') && !parser.EOF);
             result += currentValue;
         } while (!parser.EOF);
@@ -50,8 +50,8 @@ public class Day15
                 if (char.IsLetter(c))
                 {
                     boxNumber += c;
-                    boxNumber *= 17;
-                    boxNumber %= 256;
+                    boxNumber += boxNumber << 4;
+                    boxNumber &= 0b1111_1111;
                     label += c;
                 }
             } while (char.IsLetter(c));

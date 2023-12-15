@@ -12,10 +12,10 @@ public class Day15BenchmarkTests
         solver.Part1("/Users/davidbetteridge/Personal/AdventOfCode2023/AOC_2023/AOC_2023.Tests/Day15/input.txt");
     }
     
-    // [Benchmark(Baseline = false)]
-    // public void Part2()
-    // {
-    //     var solver = new Day15();
-    //     solver.Part2("/Users/davidbetteridge/Personal/AdventOfCode2023/AOC_2023/AOC_2023.Tests/Day15/input.txt");
-    // }
+    [Benchmark(Baseline = false)]
+    public void Part2()
+    {
+        var solver = new Day15();
+        solver.Part2("/Users/davidbetteridge/Personal/AdventOfCode2023/AOC_2023/AOC_2023.Tests/Day15/input.txt");
+    }
 }
