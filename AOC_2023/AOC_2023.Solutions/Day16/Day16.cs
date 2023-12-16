@@ -30,7 +30,7 @@ public class Day16
         
         var visited = new Dictionary<int, byte>();
         var beams = new Queue<(int x, int y ,byte dir)>();
-        return Solve(cave, 0, 0, Right, visited, beams);
+        return Solve(cave, (0, 0, Right), visited, beams);
     }
 
     public long Part2(string filename)
@@ -54,37 +54,35 @@ public class Day16
         {
             var visited = new Dictionary<int, byte>();
             var beams = new Queue<(int x, int y ,byte dir)>();
-            bag.Add(Solve(cave, x, 0, Down, visited, beams));
-            bag.Add(Solve(cave, x, rows-1, Up, visited, beams));
+            bag.Add(Solve(cave, (x, 0, Down), visited, beams));
+            visited.Clear();
+            bag.Add(Solve(cave, (x, rows-1, Up), visited, beams));
         });
-
 
         Parallel.For(0, rows, y =>
         {
             var visited = new Dictionary<int, byte>();
             var beams = new Queue<(int x, int y, byte dir)>();
-            bag.Add(Solve(cave, 0, y, Right, visited, beams));
-            bag.Add(Solve(cave, cols - 1, y, Left, visited, beams));
+            bag.Add(Solve(cave, (0, y, Right), visited, beams));
+            visited.Clear();
+            bag.Add(Solve(cave, (cols - 1, y, Left), visited, beams));
         });
         
         return bag.Max();
     }
     
-    private int Solve(byte[][] cave, int startX, int startY, byte initialDir,
+    private int Solve(byte[][] cave, (int x, int y, byte dir) details,
                       Dictionary<int, byte> visited, 
                       Queue<(int x, int y, byte dir)> beams)
     {
-        visited.Clear();
-        
         var rows = cave.Length;
         var cols = cave[0].Length;
 
-        beams.Enqueue((startX, startY, initialDir));
-
-        while (beams.Count > 0)
+        do
         {
+            var (newX, newY, dir) = details;
+            
             // Bounce the beam until it leave the cave.
-            var (newX, newY, dir) = beams.Dequeue();
             while (true)
             {
                 if (newX < 0) break;
@@ -99,7 +97,7 @@ public class Day16
                 }
                 else
                     visited[newX + (newY * cols)] = dir;
-        
+
 
                 // What is this cell?
                 var c = cave[newY][newX];
@@ -186,7 +184,8 @@ public class Day16
                 if (dir == Up) newY--;
                 if (dir == Down) newY++;
             }
-        }
+
+        } while (beams.TryDequeue(out details));
 
         return visited.Count;
     }
