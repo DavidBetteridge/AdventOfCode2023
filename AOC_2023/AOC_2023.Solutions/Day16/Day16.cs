@@ -104,21 +104,51 @@ public class Day16
 
                 if (dir is Right or Left && c == Vertical)
                 {
-                    // Split
-                    if (newY > 0)
+                    // Split up and down
+                    if (newY+1 == cols)
+                    {
+                        // Can't go down
+                        newY--;
+                        dir = Up;
+                    }
+                    else if (newY == 0)
+                    {
+                        // Can't go up
+                        newY++;
+                        dir = Down;
+                    }
+                    else
+                    {
+                        // We can go both ways
                         beams.Enqueue((newX, newY - 1, Up));
-                    newY++;
-                    dir = Down;
+                        newY++;
+                        dir = Down;
+                    }
                     continue;
                 }
 
                 if (dir is Up or Down && c == Horizontal)
                 {
-                    // Split
-                    if (newX > 0)
+                    // Split left and right
+                    if (newX+1 == cols)
+                    {
+                        // Can't go right
+                        newX--;
+                        dir = Left;
+                    }
+                    else if (newX == 0)
+                    {
+                        // Can't go left
+                        newX++;
+                        dir = Right;
+                    }
+                    else
+                    {
+                        // We can go both ways
                         beams.Enqueue((newX - 1, newY, Left));
-                    newX++;
-                    dir = Right;
+                        newX++;
+                        dir = Right;
+                    }
                     continue;
                 }
 
