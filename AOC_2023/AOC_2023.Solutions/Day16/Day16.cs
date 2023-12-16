@@ -1,3 +1,5 @@
+using System.Collections.Concurrent;
+
 namespace AOC_2023.Solutions;
 
 public class Day16
@@ -45,23 +47,27 @@ public class Day16
             ).ToArray()).ToArray();
         var rows = cave.Length;
         var cols = cave[0].Length;
-        var result = 0;
-        var visited = new Dictionary<int, byte>();
-        var beams = new Queue<(int x, int y ,byte dir)>();
+
+        var bag = new ConcurrentBag<int>();
         
-        for (var x = 0; x < cols; x++)
+        Parallel.For(0, cols, x =>
         {
-            result = Math.Max(result, Solve(cave, x, 0, Down, visited, beams));
-            result = Math.Max(result, Solve(cave, x, rows-1, Up, visited, beams));
-        }
-        
-        for (var y = 0; y < rows; y++)
+            var visited = new Dictionary<int, byte>();
+            var beams = new Queue<(int x, int y ,byte dir)>();
+            bag.Add(Solve(cave, x, 0, Down, visited, beams));
+            bag.Add(Solve(cave, x, rows-1, Up, visited, beams));
+        });
+
+
+        Parallel.For(0, rows, y =>
         {
-            result = Math.Max(result, Solve(cave, 0, y, Right, visited, beams));
-            result = Math.Max(result, Solve(cave, cols-1, y, Left, visited, beams));
-        }
+            var visited = new Dictionary<int, byte>();
+            var beams = new Queue<(int x, int y, byte dir)>();
+            bag.Add(Solve(cave, 0, y, Right, visited, beams));
+            bag.Add(Solve(cave, cols - 1, y, Left, visited, beams));
+        });
         
-        return result;
+        return bag.Max();
     }
     
     private int Solve(byte[][] cave, int startX, int startY, byte initialDir,
