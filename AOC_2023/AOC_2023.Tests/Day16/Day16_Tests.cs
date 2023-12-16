@@ -16,17 +16,17 @@ public class Day16Tests
         Assert.Equal(7111, solver.Part1("Day16/input.txt"));
     }
 
-    // [Fact]
-    // public void Test_Part2_Sample()
-    // {
-    //     var solver = new Day15();
-    //     Assert.Equal(145, solver.Part2("Day15/sample.txt"));
-    // }
-    //
-    // [Fact]
-    // public void Test_Part2()
-    // {
-    //     var solver = new Day15();
-    //     Assert.Equal(290779, solver.Part2("Day15/input.txt"));
-    // }
+    [Fact]
+    public void Test_Part2_Sample()
+    {
+        var solver = new Day16();
+        Assert.Equal(51, solver.Part2("Day16/sample.txt"));
+    }
+    
+    [Fact]
+    public void Test_Part2()
+    {
+        var solver = new Day16();
+        Assert.Equal(7831, solver.Part2("Day16/input.txt"));
+    }
 }

@@ -5,12 +5,39 @@ public class Day16
     public long Part1(string filename)
     {
         var cave = File.ReadAllLines(filename);
+        return Solve(cave, 0, 0, 'R');
+    }
+
+    public long Part2(string filename)
+    {
+        var cave = File.ReadAllLines(filename);
+        var rows = cave.Length;
+        var cols = cave[0].Length;
+        var result = 0;
+        
+        for (var x = 0; x < cols; x++)
+        {
+            result = Math.Max(result, Solve(cave, x, 0, 'D'));
+            result = Math.Max(result, Solve(cave, x, rows-1, 'U'));
+        }
+        
+        for (var y = 0; y < rows; y++)
+        {
+            result = Math.Max(result, Solve(cave, 0, y, 'R'));
+            result = Math.Max(result, Solve(cave, cols-1, y, 'L'));
+        }
+        
+        return result;
+    }
+    
+    private int Solve(string[] cave, int startX, int startY, char initialDir)
+    {
         var rows = cave.Length;
         var cols = cave[0].Length;
         var visited = new HashSet<(int x, int y)>();
         var repeats = new HashSet<(int x, int y ,char dir)>();
         var beams = new Queue<(int x, int y ,char dir)>();
-        beams.Enqueue((0, 0, 'R'));
+        beams.Enqueue((startX, startY, initialDir));
 
         while (beams.Count>0)
         {
