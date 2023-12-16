@@ -7,104 +7,111 @@ public class Day16
         var cave = File.ReadAllLines(filename);
         var rows = cave.Length;
         var cols = cave[0].Length;
-        var visited = new bool[rows * cols];
-        var result = 0;
-        var beams = new Queue<(int, int, char, char)>();
-        beams.Enqueue((0, 0, 'R', ' '));
+        var visited = new HashSet<(int x, int y)>();
+        var repeats = new HashSet<(int x, int y ,char dir)>();
+        var beams = new Queue<(int x, int y ,char dir)>();
+        beams.Enqueue((0, 0, 'R'));
 
-
-        do
+        while (beams.Count>0)
         {
             // Bounce the beam until it leave the cave.
-            var (x, y, xDir, yDir) = beams.Dequeue();
-
-
-            visited[x * cols + y] = true;
-
-            var newX = x;
-            if (xDir == 'L') newX--;
+            var (newX, newY, dir) = beams.Dequeue();
             if (newX < 0) continue;
-            if (xDir == 'R') newX++;
-            if (newX + 1 >= cols) continue;
-
-            var newY = y;
-            if (yDir == 'U') newY--;
+            if (newX >= cols) continue;
             if (newY < 0) continue;
-            if (yDir == 'D') newY++;
-            if (newY + 1 >= rows) continue;
-
+            if (newY >= rows) continue;
+            if (repeats.Contains((newX, newY, dir))) continue;
+            
+            // Mark this cell as visited
+            visited.Add((newX, newY));
+            repeats.Add((newX, newY, dir));
+            
+            // What is this cell?
             var c = cave[newY][newX];
-
-            if (xDir != ' ' && c == '|')
+            
+            if (dir is 'R' or 'L' && c == '|')
             {
                 // Split
-                beams.Enqueue((newX, newY - 1, ' ', 'U'));
-                beams.Enqueue((newX, newY + 1, ' ', 'D'));
-                break;
+                beams.Enqueue((newX, newY - 1, 'U'));
+                beams.Enqueue((newX, newY + 1, 'D'));
+                continue;
             }
 
-            if (yDir != ' ' && c == '-')
+            if (dir is 'U' or 'D' && c == '-')
             {
                 // Split
-                beams.Enqueue((newX - 1, newY, 'L', ' '));
-                beams.Enqueue((newX + 1, newY, 'R', ' '));
-                break;
+                beams.Enqueue((newX - 1, newY, 'L'));
+                beams.Enqueue((newX + 1, newY, 'R'));
+                continue;
             }
 
-            if (xDir == 'R' && c == '/')
+            if (dir == 'R' && c == '/')
             {
-                beams.Enqueue((newX, newY - 1, ' ', 'U'));
-                break;
+                beams.Enqueue((newX, newY - 1, 'U'));
+                continue;
             }
 
-            if (yDir == 'D' && c == '/')
+            if (dir == 'D' && c == '/')
             {
-                beams.Enqueue((newX - 1, newY, 'L', ' '));
-                break;
+                beams.Enqueue((newX - 1, newY, 'L'));
+                continue;
             }
 
-            if (xDir == 'L' && c == '/')
+            if (dir == 'L' && c == '/')
             {
-                beams.Enqueue((newX, newY + 1, ' ', 'D'));
-                break;
+                beams.Enqueue((newX, newY + 1, 'D'));
+                continue;
             }
 
-            if (yDir == 'U' && c == '/')
+            if (dir == 'U' && c == '/')
             {
-                beams.Enqueue((newX + 1, newY, 'R', ' '));
-                break;
+                beams.Enqueue((newX + 1, newY, 'R'));
+                continue;
             }
 
-            ////
-            if (xDir == 'R' && c == '\\')
+            if (dir == 'R' && c == '\\')
             {
-                beams.Enqueue((newX, newY + 1, ' ', 'D'));
-                break;
+                beams.Enqueue((newX, newY + 1, 'D'));
+                continue;
             }
 
-            if (yDir == 'D' && c == '\\')
+            if (dir == 'D' && c == '\\')
             {
-                beams.Enqueue((newX + 1, newY, 'R', ' '));
-                break;
+                beams.Enqueue((newX + 1, newY, 'R'));
+                continue;
             }
 
-            if (xDir == 'L' && c == '\\')
+            if (dir == 'L' && c == '\\')
             {
-                beams.Enqueue((newX, newY - 1, ' ', 'U'));
-                break;
+                beams.Enqueue((newX, newY - 1, 'U'));
+                continue;
             }
 
-            if (yDir == 'U' && c == '\\')
+            if (dir == 'U' && c == '\\')
             {
-                beams.Enqueue((newX - 1, newY, 'L', ' '));
-                break;
+                beams.Enqueue((newX - 1, newY, 'L'));
+                continue;
             }
             
-            
-            
-        } while (beams.Any());
+            // Keep walking
+            if (dir == 'L') beams.Enqueue((newX - 1, newY, dir));
+            if (dir == 'R') beams.Enqueue((newX + 1, newY, dir));
+            if (dir == 'U') beams.Enqueue((newX, newY - 1, dir));
+            if (dir == 'D') beams.Enqueue((newX, newY + 1, dir));
+        }
 
-
-        return result;
+        for (var row = 0; row < rows; row++)
+        {
+            for (var col = 0; col < cols; col++)
+            {   
+                if (visited.Contains((col, row)))
+                    Console.Write('#');
+                else
+                    Console.Write('.');
+            }
+            Console.WriteLine();
+        }
+       
+        return visited.Count;
     }
 }
