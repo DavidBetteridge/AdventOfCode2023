@@ -2,122 +2,148 @@ namespace AOC_2023.Solutions;
 
 public class Day17
 {
-    private record State
+    public record Link
     {
-        public int Row { get; set; }
-        public int Col { get; set; }
-        public int Heatloss { get; set; }
-        public int RunLength { get; set; }
-        public char Direction { get; set; }
+        public int Node { get; set; }
+        public int Weight { get; set; }
     }
-   
     public long Part1(string filename)
     {
-        var bestScore = 1000;// int.MaxValue;
-        var map = File.ReadAllLines(filename).Select(line => line.Select(c => c - '0').ToArray()).ToArray();
-        var targetRow = map.Length - 1;
-        var targetColumn = map[0].Length - 1;
-        var final = map[^1][^1];
+        var weights = File.ReadAllLines(filename)
+                            .Select(line => line.Select(c => c - '0').ToArray())
+                            .ToArray();
 
-        var seen = new Dictionary<(int col, int row, char direction, int runLength), int>();  //Score
+        var numberOfRows = weights.Length;
+        var numberOfColumns = weights[0].Length;
+        var numberOfCells = numberOfColumns * numberOfRows;
         
-        Step(new State
-        {
-            Row = 0,
-            Direction = ' ',
-            Col = 0,
-            RunLength = 0,
-            Heatloss = 0
-        });
+        // Horizontal nodes are.....  col + row * number of cols
+        // Vertical nodes are ..... col  + (row * number of cols) + (number of rows * number of cols)
+        // but we are really interested in the links between nodes.
+        // Mapping Source -> Targets x 6 (Node, Weight)
+        var numberOfNodes = (numberOfCells * 2);
+        var graph = new Link?[numberOfNodes, 6];
         
-        void Step(State currentState)
+        for (var row = 0; row < numberOfRows; row++)
         {
-            if (currentState.Row == targetRow && currentState.Col == targetColumn)
+            for (var column = 0; column < numberOfColumns; column++)
             {
-                bestScore = Math.Min(bestScore, currentState.Heatloss);
-                Console.WriteLine(bestScore);
-                return;
-            }
-            
-            var estimate = (targetRow - currentState.Row) + (targetColumn - currentState.Col) -1 + final;
-            if (currentState.Heatloss+estimate > bestScore)
-                return;
-    
-            // Have we been here before?
-            var h = currentState.RunLength;
-            while (h >= 1)
-            {
-                if (seen.TryGetValue(
-                        (currentState.Col, currentState.Row, currentState.Direction, h),
-                        out var score))
+                if ((row + 1 == numberOfRows) && (column + 1 == numberOfColumns))
+                    continue;
+                
+                // Horizontal node
+                var sourceH = column + (row * numberOfColumns);
+                
+                // Going right....
+                var weight = 0;
+                for (var length = 1; length <= 3; length++)
                 {
-                    if (currentState.Heatloss >= score) return;
+                    if (column + 1 + length <= numberOfColumns)
+                    {
+                        var target = (column + length) + (row * numberOfColumns) + numberOfCells;
+                        if (target == numberOfNodes - 1) target = numberOfCells - 1;
+                        weight += weights[row][column + length];
+                        graph[sourceH, length - 1] = new Link { Node = target, Weight = weight };
+                    }
                 }
-                h--;
-            }
-            seen[(currentState.Col, currentState.Row, currentState.Direction, currentState.RunLength)] = currentState.Heatloss;
-       
-            // Down
-            if (currentState.Row < targetRow &&
-                currentState.Direction != 'U' &&
-                (currentState.Direction != 'D' || currentState.RunLength < 3))
-            {
-                Step(new State
+                
+                // Going left....
+                weight = 0;
+                for (var length = 1; length <= 3; length++)
                 {
-                    Row = currentState.Row + 1,
-                    Direction = 'D',
-                    Col = currentState.Col,
-                    RunLength = currentState.Direction == 'D' ? currentState.RunLength + 1 : 1,
-                    Heatloss = currentState.Heatloss + map[currentState.Row + 1][currentState.Col]
-                });
-            }
-            
-            // Right
-            if (currentState.Col < targetColumn &&
-                currentState.Direction != 'L' &&
-                (currentState.Direction != 'R' || currentState.RunLength < 3))
-            {
-                Step(new State
+                    if (column - length >= 0)
+                    {
+                        var target = (column-length) + (row * numberOfColumns) + numberOfCells;
+                        weight += weights[row][column - length];
+                        graph[sourceH, 3 + length - 1] = new Link { Node = target, Weight = weight };
+                    }
+                }
+                
+                // Vertical node
+                var sourceV = column + (row * numberOfColumns) + numberOfCells;
+                
+                // Going down....
+                weight = 0;
+                for (var length = 1; length <= 3; length++)
                 {
-                    Row = currentState.Row ,
-                    Direction = 'R',
-                    Col = currentState.Col + 1,
-                    RunLength = currentState.Direction == 'R' ? currentState.RunLength + 1 : 1,
-                    Heatloss = currentState.Heatloss + map[currentState.Row ][currentState.Col + 1]
-                });
-            }
-            
-            // Up
-            if (currentState.Row > 0 &&
-                currentState.Direction != 'D' &&
-                (currentState.Direction != 'U' || currentState.RunLength < 3))
-            {
-                Step(new State
+                    if (row + 1 + length <= numberOfRows)
+                    {
+                        var target = column + ((row + length)  * numberOfColumns);
+                        if (target == numberOfNodes - 1) target = numberOfCells - 1;
+                        weight += weights[row + length][column];
+                        graph[sourceV, length - 1] = new Link { Node = target, Weight = weight };
+                    }
+                }
+                
+                // Going up....
+                weight = 0;
+                for (var length = 1; length <= 3; length++)
                 {
-                    Row = currentState.Row - 1,
-                    Direction = 'U',
-                    Col = currentState.Col,
-                    RunLength = currentState.Direction == 'U' ? currentState.RunLength + 1 : 1,
-                    Heatloss = currentState.Heatloss + map[currentState.Row - 1][currentState.Col]
-                });
-            }
-            
-            // Left
-            if (currentState.Col > 0 &&
-                currentState.Direction != 'R' &&
-                (currentState.Direction != 'L' || currentState.RunLength < 3))
-            {
-                Step(new State
-                {
-                    Row = currentState.Row ,
-                    Direction = 'L',
-                    Col = currentState.Col- 1,
-                    RunLength = currentState.Direction == 'L' ? currentState.RunLength + 1 : 1,
-                    Heatloss = currentState.Heatloss + map[currentState.Row ][currentState.Col - 1]
-                });
+                    if (row - length >= 0)
+                    {
+                        var target = column + ((row - length)  * numberOfColumns);
+                        weight += weights[row - length][column];
+                        graph[sourceV, 3 + length - 1] = new Link { Node = target, Weight = weight };
+                    }
+                }
             }
         }
 
-        return bestScore;
+        // bit hacky,  but we can also go down from the first node
+        var w = 0;
+        for (var length = 1; length <= 3; length++)
+        {
+            if (1 + length <= numberOfRows)
+            {
+                var target = 0 + (length * numberOfColumns);
+                w += weights[length][0];
+                graph[0, 3+length - 1] = new Link { Node = target, Weight = w };
+            }
+        }
+        
+        
+        var distances = new int[numberOfNodes-1];
+        Array.Fill(distances, int.MaxValue);
+        distances[0] = 0;
+
+        var seen = new bool[numberOfNodes-1];
+
+        for (var n = 0; n < numberOfNodes-1; n++)
+        {
+            var v = FindSmallest(seen, distances);
+            seen[v] = true;
+
+            for (var u = 0; u < 6; u++)
+            {
+                var link = graph[v, u];
+                if (link is not null)
+                {
+                    if ((distances[v] + link.Weight) < distances[link.Node])
+                    {
+                        distances[link.Node] = distances[v] + link.Weight;
+                    }
+                }
+            }
+        }
+        
+        
+        return distances[numberOfCells - 1];
+    }
+
+    private int FindSmallest(bool[] seen, int[] distances)
+    {
+        var smallestCost = int.MaxValue-1;
+        var smallestIndex = -1;
+
+        for (var i = 0; i < distances.Length; i++)
+        {
+            if (distances[i] <= smallestCost && !seen[i])
+            {
+                smallestCost = distances[i];
+                smallestIndex = i;
+            }
+        }
+
+        return smallestIndex;
     }
 }
