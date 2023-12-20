@@ -62,10 +62,8 @@ public class Day18
             MinCol = grid.Min(g => g.col),
             MaxCol = grid.Max(g => g.col)
         };
+        Display(bounds, grid, "Empty");
 
-        
-        // Optomise - outside edges are always not dub
-        
         // Pick the first empty point and flood fill it.
         for (var y = bounds.MinRow; y <= bounds.MaxRow; y++)
         {
@@ -77,29 +75,33 @@ public class Day18
                 }
             }
         }
+        Display(bounds, grid, "Filled");
 
+        return grid.Count;
+    }
 
-        // Display
-
-        
+    private static void Display(Bounds bounds, HashSet<(int col, int row)> grid, string name)
+    {
+        using var file = File.CreateText(
+            $"/Users/davidbetteridge/Personal/AdventOfCode2023/AOC_2023/AOC_2023.Tests/Day18/{name}.txt");
         for (var y = bounds.MinRow; y <= bounds.MaxRow; y++)
         {
             for (var x = bounds.MinCol; x <= bounds.MaxCol; x++)
             {
-                if (grid.Contains((x,y)))
-                    Console.Write('#');
+                if (grid.Contains((x, y)))
+                    file.Write('#');
                 else
-                    Console.Write('.');
+                    file.Write('.');
             }
-            Console.WriteLine();
+
+            file.WriteLine();
         }
-        
-        return grid.Count;
     }
 
     private void FloodFill(HashSet<(int col, int row)> grid,
         HashSet<(int col, int row)> notDug, int x, int y, Bounds bounds)
     {
+        
         var seen = new HashSet<(int, int)>();
         var q = new Queue<(int,int)>();
         q.Enqueue((x,y));
@@ -117,10 +119,10 @@ public class Day18
                     dig = false;
                 
                 seen.Add((nextX, nextY));
-                if (nextX-1 >= bounds.MinRow) q.Enqueue((nextX-1,nextY));
-                if (nextX+1 <= bounds.MaxRow) q.Enqueue((nextX+1,nextY));
-                if (nextY-1 >= bounds.MinCol) q.Enqueue((nextX,nextY-1));
-                if (nextY+1 <= bounds.MaxCol) q.Enqueue((nextX,nextY+1));
+                if (nextX-1 >= bounds.MinCol) q.Enqueue((nextX-1,nextY));
+                if (nextX+1 <= bounds.MaxCol) q.Enqueue((nextX+1,nextY));
+                if (nextY-1 >= bounds.MinRow) q.Enqueue((nextX,nextY-1));
+                if (nextY+1 <= bounds.MaxRow) q.Enqueue((nextX,nextY+1));
             }
         }
 

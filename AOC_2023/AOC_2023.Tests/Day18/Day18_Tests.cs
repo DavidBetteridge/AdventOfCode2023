@@ -13,8 +13,7 @@ public class Day18Tests
     public void Test_Part1()
     {
         var solver = new Day18();
-        Assert.Equal(83135, solver.Part1("Day18/input.txt"));  //83135 too high  76836
-        //68270
+        Assert.Equal(48400, solver.Part1("Day18/input.txt"));
     }
 
     // [Fact]
