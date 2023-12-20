@@ -2,140 +2,109 @@ namespace AOC_2023.Solutions;
 
 public class Day18
 {
-    private record Bounds
+    private record Point
     {
-        public int MinRow { get; set; }
-        public int MaxRow { get; set; }
-        public int MinCol { get; set; }
-        public int MaxCol { get; set; }
+        public long X { get; set; }
+        public long Y { get; set; }
     }
-    
+
     public long Part1(string filename)
     {
-        // U 2 (#7a21e3)
         var commands = File.ReadAllLines(filename);
-        var grid = new HashSet<(int col, int row)> { (0, 0) };
-        var notDug = new HashSet<(int col, int row)> ();
+        var points = new List<Point>();
+        var current = new Point();
+        points.Add(current);
 
-        var currentX = 0;
-        var currentY = 0;
+        var result = 1;
         foreach (var command in commands)
         {
             var bits = command.Split(' ');
             var dir = bits[0][0];
             var qty = int.Parse(bits[1]);
 
-            if (dir == 'R')
-                for (var i = 0; i < qty; i++)
-                {
-                    currentX++;
-                    grid.Add((currentX, currentY));
-                }
-            
-            else if (dir == 'L')
-                for (var i = qty; i > 0; i--)
-                {
-                    currentX--;
-                    grid.Add((currentX, currentY));
-                }
-      
-            else if (dir == 'D')
-                for (var i = 0; i < qty; i++)
-                {
-                    currentY++;
-                    grid.Add((currentX, currentY));
-                }
-            
-            else if (dir == 'U')
-                for (var i = qty; i > 0; i--)
-                {
-                    currentY--;
-                    grid.Add((currentX, currentY));
-                }
-        }
-
-        // Bounds
-        var bounds = new Bounds
-        {
-            MinRow = grid.Min(g => g.row),
-            MaxRow = grid.Max(g => g.row),
-            MinCol = grid.Min(g => g.col),
-            MaxCol = grid.Max(g => g.col)
-        };
-        Display(bounds, grid, "Empty");
-
-        // Pick the first empty point and flood fill it.
-        for (var y = bounds.MinRow; y <= bounds.MaxRow; y++)
-        {
-            for (var x = bounds.MinCol; x <= bounds.MaxCol; x++)
+            current = dir switch
             {
-                if (!grid.Contains((x, y)) && !notDug.Contains((x, y)))
-                {
-                    FloodFill(grid, notDug, x, y, bounds);
-                }
-            }
-        }
-        Display(bounds, grid, "Filled");
+                'R' => current with { X = current.X + qty },
+                'L' => current with { X = current.X - qty },
+                'D' => current with { Y = current.Y + qty },
+                'U' => current with { Y = current.Y - qty },
+                _ => current
+            };
+            points.Add(current);
 
-        return grid.Count;
+            // Offset because we need to take the border into account.
+            // Can also use Picks for this.
+            result += dir switch
+            {
+                'L' => qty,
+                'U' => qty,
+                _ => 0
+            };
+        }
+
+        var N = points.Count - 1;
+        var r1 = points[N].X * points[0].Y;
+        for (var n = 0; n < N; n++)
+            r1 += points[n].X * points[n + 1].Y;
+
+        var r2 = points[0].X * points[N].Y;
+        for (var n = 0; n < N; n++)
+            r2 += points[n + 1].X * points[n].Y;
+
+        return result + (Math.Abs(r1 - r2) / 2);
     }
 
-    private static void Display(Bounds bounds, HashSet<(int col, int row)> grid, string name)
+    public double Part2(string filename)
     {
-        using var file = File.CreateText(
-            $"/Users/davidbetteridge/Personal/AdventOfCode2023/AOC_2023/AOC_2023.Tests/Day18/{name}.txt");
-        for (var y = bounds.MinRow; y <= bounds.MaxRow; y++)
+        var commands = File.ReadAllLines(filename);
+        var points = new List<Point>();
+        var current = new Point();
+        points.Add(current);
+
+        double result = 1L;
+        foreach (var command in commands)
         {
-            for (var x = bounds.MinCol; x <= bounds.MaxCol; x++)
+            // R 6 (#70c710)
+            var bits = command.Split(' ')[^1]; // (#70c710)
+            var dirC = bits[7];
+            var qty = Convert.ToInt32($"0x{bits[2..7]}", 16);
+
+            var dir = dirC switch
             {
-                if (grid.Contains((x, y)))
-                    file.Write('#');
-                else
-                    file.Write('.');
-            }
+                '0' => 'R',
+                '1' => 'D',
+                '2' => 'L',
+                _ => 'U'
+            };
 
-            file.WriteLine();
-        }
-    }
-
-    private void FloodFill(HashSet<(int col, int row)> grid,
-        HashSet<(int col, int row)> notDug, int x, int y, Bounds bounds)
-    {
-        
-        var seen = new HashSet<(int, int)>();
-        var q = new Queue<(int,int)>();
-        q.Enqueue((x,y));
-        var dig = true;
-        while (q.Any())
-        {
-            var (nextX, nextY) = q.Dequeue();
-            if (!grid.Contains((nextX, nextY)) && !seen.Contains((nextX, nextY)))
+            current = dir switch
             {
-                // If we have hit an edge,  then the entire shape cannot be dug.
-                if (nextX == bounds.MinCol || 
-                    nextY == bounds.MinRow || 
-                    nextX == bounds.MaxCol || 
-                    nextY == bounds.MaxRow)
-                    dig = false;
-                
-                seen.Add((nextX, nextY));
-                if (nextX-1 >= bounds.MinCol) q.Enqueue((nextX-1,nextY));
-                if (nextX+1 <= bounds.MaxCol) q.Enqueue((nextX+1,nextY));
-                if (nextY-1 >= bounds.MinRow) q.Enqueue((nextX,nextY-1));
-                if (nextY+1 <= bounds.MaxRow) q.Enqueue((nextX,nextY+1));
-            }
+                'R' => current with { X = current.X + qty },
+                'L' => current with { X = current.X - qty },
+                'D' => current with { Y = current.Y + qty },
+                'U' => current with { Y = current.Y - qty },
+                _ => current
+            };
+            points.Add(current);
+
+            // Offset because we need to take the border into account.
+            // Can also use Picks for this.
+            result += dir switch
+            {
+                'L' => qty,
+                'U' => qty,
+                _ => 0
+            };
         }
 
-        if (dig)
+        int n = points.Count - 1;
+
+        double a = 0;
+        for (int i = 0; i < n; i++)
         {
-            foreach (var s in seen)
-                grid.Add(s);
+            a += ((points[i].X * points[i + 1].Y) - (points[i + 1].X * points[i].Y)) / 2.0;
         }
-        else
-        {
-            foreach (var s in seen)
-                notDug.Add(s);
-        }
-        
+
+        return result + (a);
     }
 }
