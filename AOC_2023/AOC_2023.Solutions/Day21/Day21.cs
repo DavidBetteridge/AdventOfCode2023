@@ -1,0 +1,105 @@
+namespace AOC_2023.Solutions;
+
+public class Day21
+{
+    public long Part1(string filename, int requiredSteps)
+    {
+        // Load Graph
+        var graph = File.ReadAllLines(filename);
+        var rows = graph.Length;
+        var cols = graph[0].Length;
+
+        // Find the start position
+        var startRow = 0;
+        var startCol = 0;
+        foreach (var row in graph)
+        {
+            startCol = row.IndexOf('S');
+            if (startCol != -1) break;
+            startRow++;
+        }
+        
+        // Compute shortest paths from S
+        var distances = new int[rows*cols];
+        Array.Fill(distances, int.MaxValue);
+        distances[startCol + (startRow * cols)  ] = 0;
+
+        var seen = new bool[rows*cols];
+
+       
+        for (var n = 0; n < rows*cols; n++)
+        {
+            var v = FindSmallest(seen, distances);
+            if (v == -1)
+            {
+                Console.WriteLine("oh");
+            }
+            seen[v] = true;
+
+            var col = v % cols;
+            var row = (v - col) / cols;
+
+            // Where can we go from graph[row, col]
+            if (distances[v] != int.MaxValue)
+            {
+                if (row > 0 && graph[row - 1][col] != '#')
+                {
+                    if ((distances[v] + 1) < distances[col + ((row - 1) * cols)])
+                    {
+                        distances[col + ((row - 1) * cols)] = distances[v] + 1;
+                    }
+                }
+
+                if (col > 0 && graph[row][col - 1] != '#')
+                {
+                    if ((distances[v] + 1) < distances[(col - 1) + (row * cols)])
+                    {
+                        distances[(col - 1) + (row * cols)] = distances[v] + 1;
+                    }
+                }
+
+                if (row + 1 < rows && graph[row + 1][col] != '#')
+                {
+                    if ((distances[v] + 1) < distances[col + ((row + 1) * cols)])
+                    {
+                        distances[col + ((row + 1) * cols)] = distances[v] + 1;
+                    }
+                }
+
+                if (col + 1 < cols && graph[row][col + 1] != '#')
+                {
+                    if ((distances[v] + 1) < distances[(col + 1) + (row * cols)])
+                    {
+                        distances[(col + 1) + (row * cols)] = distances[v] + 1;
+                    }
+                }
+            }
+        }
+        
+        
+        return distances.Count(d => d <= requiredSteps && d % 2 == 0);
+    }
+    
+    private int FindSmallest(bool[] seen, int[] distances)
+    {
+        var smallestCost = int.MaxValue;
+        var smallestIndex = -1;
+
+        for (var i = 0; i < distances.Length; i++)
+        {
+            if (distances[i] <= smallestCost && !seen[i])
+            {
+                smallestCost = distances[i];
+                smallestIndex = i;
+            }
+        }
+
+        return smallestIndex;
+    }
+    
+    public long Part2(string filename)
+    {
+        return 0;
+    }
+    
+}
