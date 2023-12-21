@@ -20,7 +20,7 @@ public class Day20Tests
     public void Test_Part1()
     {
         var solver = new Day20();
-        Assert.Equal(446517, solver.Part1("Day20/input.txt"));
+        Assert.Equal(886347020, solver.Part1("Day20/input.txt"));
     }
 
     [Fact]
