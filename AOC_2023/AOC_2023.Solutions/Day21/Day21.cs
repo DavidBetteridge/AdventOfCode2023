@@ -30,10 +30,7 @@ public class Day21
         for (var n = 0; n < rows*cols; n++)
         {
             var v = FindSmallest(seen, distances);
-            if (v == -1)
-            {
-                Console.WriteLine("oh");
-            }
+            if (distances[v] > requiredSteps) break;
             seen[v] = true;
 
             var col = v % cols;
@@ -77,7 +74,7 @@ public class Day21
         }
         
         
-        return distances.Count(d => d <= requiredSteps && d % 2 == 0);
+        return distances.Count(d => d % 2 == 0);
     }
     
     private int FindSmallest(bool[] seen, int[] distances)
