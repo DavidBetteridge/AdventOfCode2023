@@ -1,0 +1,11 @@
+```mermaid
+  graph TD;
+    broadcaster--> a;
+    broadcaster--> b;
+    broadcaster--> c;
+    %a --> b;
+    %b --> c;
+    %c --> inv;
+    &inv --> a;
+```
+
