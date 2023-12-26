@@ -1,6 +1,3 @@
-using Microsoft.CodeAnalysis.FlowAnalysis;
-using Microsoft.Diagnostics.Tracing.StackSources;
-
 namespace AOC_2023.Solutions;
 
 public class Day22
@@ -13,6 +10,7 @@ public class Day22
         public int EndX { get; set; }
         public int EndY { get; set; }
         public int EndZ { get; set; }
+        public HashSet<char> SitsOn { get; set; } = new();
     }
 
     public long Part1(string filename)
@@ -34,7 +32,7 @@ public class Day22
         for (var blockNumber = 0; blockNumber < blocks.Count; blockNumber++)
         {
             var block = blocks[blockNumber];
-            
+
             // Insert the block into the world as lowest as we can.
             // Start with it's current position,  we keep dropping it until we hit a blockage
             // or the floor.
@@ -44,7 +42,7 @@ public class Day22
             {
                 offset++;
                 if (block.StartZ - offset < 1) break;
-                
+
                 for (var x = block.StartX; x <= block.EndX; x++)
                 {
                     if (world[x, block.StartY, block.StartZ - offset] != '\0')
@@ -65,16 +63,56 @@ public class Day22
             }
 
             offset--;
-            
+
             // Add to the world
+            block.StartZ -= offset;
+            block.EndZ -= offset;
             for (var x = block.StartX; x <= block.EndX; x++)
+            {
                 world[x, block.StartY, block.StartZ] = (char)('A' + blockNumber);
+                if (block.StartZ-1 >= 0 && 
+                    world[x, block.StartY, block.StartZ-1] != '\0' &&
+                    world[x, block.StartY, block.StartZ-1] != (char)('A' + blockNumber))
+                    block.SitsOn.Add(world[x, block.StartY, block.StartZ-1]);
+            }
+
             for (var y = block.StartY; y <= block.EndY; y++)
+            {
                 world[block.StartX, y, block.StartZ] = (char)('A' + blockNumber);
+                if (block.StartZ-1 >= 0 && 
+                    world[block.StartX, y, block.StartZ-1] != '\0' &&
+                    world[block.StartX, y, block.StartZ-1] != (char)('A' + blockNumber)  )
+                    block.SitsOn.Add(world[block.StartX, y, block.StartZ-1]);
+            }
+
             for (var z = block.StartZ; z <= block.EndZ; z++)
-                world[block.StartX, block.StartY, z-offset] = (char)('A' + blockNumber); 
+            {
+                world[block.StartX, block.StartY, z] = (char)('A' + blockNumber);
+                if (z-1 >= 0 && 
+                    world[block.StartX, block.StartY, z-1] != '\0' &&
+                    world[block.StartX, block.StartY, z-1] != (char)('A' + blockNumber)
+                    )
+                    block.SitsOn.Add(world[block.StartX, block.StartY, z-1]);
+            }
         }
 
+        var result = 0;
+        for (var blockNumber = 0; blockNumber < blocks.Count; blockNumber++)
+        {
+            // What sits on us and only us?
+            var block = blocks[blockNumber];
+            var problem = blocks.Any(b => b.SitsOn.Count == 1 && 
+                                          b.SitsOn.Contains((char)('A' + blockNumber)));
+            if (!problem)
+            {
+                Console.WriteLine((char)('A' + blockNumber));
+                result++;
+            }
+        }
+
+        
+        
+        // Front
         for (var z = 9; z >= 0; z--)
         {
             for (var x = 0; x < 3; x++)
@@ -95,28 +133,31 @@ public class Day22
             Console.WriteLine($" {z}");
         }
         
+        // Side
+        Console.WriteLine();
+        for (var z = 9; z >= 0; z--)
+        {
+            for (var y = 0; y < 3; y++)
+            {
+                var written = false;
+                for (var x = 0; x < maxX; x++)
+                {
+                    if (world[x, y, z] != '\0')
+                    {
+                        Console.Write(world[x,y,z]);
+                        written = true;
+                        break;
+                    }
+                }
+                if (!written)
+                    Console.Write(".");
+            }
+            Console.WriteLine($" {z}");
+        }
+
         
-    // for (var blockNumber = 0; blockNumber < blocks.Count; blockNumber++)
-    // {
-    //     var block = blocks[blockNumber];
-    //     for (var x = block.StartX; x <= block.EndX; x++)
-    //         world[x, block.StartY, block.StartZ] = blockNumber;
-    //     for (var y = block.StartY; y <= block.EndY; y++)
-    //         world[block.StartX, y, block.StartZ] = blockNumber;
-    //     for (var z = block.StartZ; z <= block.EndZ; z++)
-    //         world[block.StartX, block.StartY, z] = blockNumber;            
-    // }
 
-    // // Shuffle blocks down to fill in spaces
-    // var offset = 0;
-    // for (var z = 0; z < maxZ; z++)
-    // {
-    //     
-    // }
-
-
-
-    return 0;
+    return result;
 }
 
     private Block ParseBlock(string line)

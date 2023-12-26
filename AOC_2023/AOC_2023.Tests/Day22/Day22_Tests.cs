@@ -13,7 +13,7 @@ public class Day22Tests
     public void Test_Part1()
     {
         var solver = new Day22();
-        Assert.Equal(3605, solver.Part1("Day22/input.txt"));
+        Assert.Equal(407, solver.Part1("Day22/input.txt"));
     }
     //
     // [Fact]
