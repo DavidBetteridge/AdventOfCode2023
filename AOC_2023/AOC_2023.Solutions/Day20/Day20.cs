@@ -14,7 +14,7 @@ public class Day20
 
         public abstract void Receive(Dictionary<string, Module> allModules, string sender, bool isHigh);
 
-        public Module(Queue<(string source, string destination, bool isHigh)> queue, string name)
+        protected Module(Queue<(string source, string destination, bool isHigh)> queue, string name)
         {
             _queue = queue;
             Name = name;
@@ -28,7 +28,6 @@ public class Day20
                 else
                     LowCount++;
                 
-               // Console.WriteLine($"{Name} -{(isHigh?"high":"low")}-> {destination}");
                 if (allModules.TryGetValue(destination, out var value))
                     _queue.Enqueue((Name, destination, isHigh));
             }
@@ -118,8 +117,81 @@ public class Day20
     public long Part1(string filename)
     {
         var lines = File.ReadAllLines(filename);
-
         var queue = new Queue<(string source, string destination, bool isHigh)>();
+        var button = new Button(queue);
+        var modules = ParseModules(lines, button, queue);
+
+        for (var i = 0; i < 1000; i++)
+        {
+            button.Press(modules);
+            while (queue.Any())
+            {
+                var (s, d, l) = queue.Dequeue();
+                modules[d].Receive(modules, s, l);
+            }
+        }
+        
+        var totalLow = modules.Sum(m => m.Value.LowCount);
+        var totalHigh = modules.Sum(m => m.Value.HighCount);
+        return totalHigh * totalLow;
+    }
+    
+    public long Part2(string filename)
+    {
+        var lines = File.ReadAllLines(filename);
+        var queue = new Queue<(string source, string destination, bool isHigh)>();
+        var button = new Button(queue);
+        var modules = ParseModules(lines, button, queue);
+        
+        // rx goes high when it receives high pulses from qs, sv, pg and sp
+        // These are all inverters to we are interested in knowing when they
+        // get low pules
+        var qs = 0;
+        var sv = 0;
+        var pg = 0;
+        var sp = 0;
+        var i = 0;
+        do
+        {
+            button.Press(modules);
+            while (queue.Any())
+            {
+                var (s, d, l) = queue.Dequeue();
+                modules[d].Receive(modules, s, l);
+
+                if (d == "qs" && !l)
+                    if (qs == 0)
+                        qs = i + 1;
+                if (d == "sv" && !l)
+                    if (sv == 0)
+                        sv = i + 1;
+                if (d == "pg" && !l)
+                    if (pg == 0)
+                        pg = i + 1;
+                if (d == "sp" && !l)
+                    if (sp == 0)
+                        sp = i + 1;
+            }
+
+            i++;
+        } while (qs == 0 || sv == 0 || pg == 0 || sp == 0);
+        
+        // sp gets sent a low pulse every 3907 steps.  This then sends a high pulse to rx
+        // sv gets sent a low pulse every 3919 steps.  This then sends a high pulse to rx
+        // pg gets sent a low pulse every 3761 steps.  This then sends a high pulse to rx
+        // qs gets sent a low pulse every 4051 steps.  This then sends a high pulse to rx        
+        var totalStepsRequired =  Lcm(qs, Lcm( sv, Lcm(pg, sp)));
+        return totalStepsRequired;
+    }
+
+    private static Dictionary<string, Module> ParseModules(
+        string[] lines, 
+        Button button,
+        Queue<(string source, string destination, bool isHigh)> queue)
+    {
+        using var markdown = File.CreateText("/Users/davidbetteridge/Personal/AdventOfCode2023/AOC_2023/AOC_2023.Tests/Day20/input.md");
+        markdown.WriteLine("```mermaid\n  graph TD;");
+        
         var modules = new Dictionary<string, Module>();
         foreach (var line in lines)
         {
@@ -141,50 +213,43 @@ public class Day20
 
             module!.AddDestinations(parts[1].Split(", "));
             modules.Add(module.Name, module);
-        }
-        
-        var button = new Button(queue);
-        button.AddDestinations(new []{"broadcaster"});
-        modules.Add("button", button);
 
-        //Console.WriteLine("Press 1");
-
-        for (var i = 0; i < 1000; i++)
-        {
-            button.Press(modules);
-            while (queue.Any())
+            // Write
+            foreach (var dest in parts[1].Split(", "))
             {
-                var (s, d, l) = queue.Dequeue();
-                modules[d].Receive(modules, s, l);
+                markdown.WriteLine($"       {module.Name} --> {dest}");
             }
         }
 
-        // Console.WriteLine("Press 1");
-        // button.Press(modules);
-        //
-        // Console.WriteLine();
-        // Console.WriteLine("Press 2");
-        // button.Press(modules);
-        //
-        // Console.WriteLine();
-        // Console.WriteLine("Press 3");
-        // button.Press(modules);
-        //
-        // Console.WriteLine();
-        // Console.WriteLine("Press 4");
-        // button.Press(modules);
-       
-        // for (var i = 0; i < 1000; i++)
-        //     button.Press(modules);
+        markdown.WriteLine("```");
+        markdown.Close();
         
-        var totalLow = modules.Sum(m => m.Value.LowCount);
-        var totalHigh = modules.Sum(m => m.Value.HighCount);
-        return totalHigh * totalLow;
+        button.AddDestinations(new[] { "broadcaster" });
+        modules.Add("button", button);
+        return modules;
     }
-    public long Part2(string filename)
+
+
+    private long Gcd(long a, long b)
     {
-        return 0;
+        while (true)
+        {
+            if (b == 0) return a;
+            var a1 = a;
+            a = b;
+            b = a1 % b;
+        }
     }
+
+    private long Lcm(long a, long b)
+    {
+        if (a > b)
+            return (a / Gcd(a, b)) * b;
+        else
+            return (b / Gcd(a, b)) * a;
+    }
+    
+
     
 }
 

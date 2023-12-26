@@ -22,18 +22,11 @@ public class Day20Tests
         var solver = new Day20();
         Assert.Equal(886347020, solver.Part1("Day20/input.txt"));
     }
-
-    [Fact]
-    public void Test_Part2_Sample()
-    {
-        var solver = new Day20();
-        Assert.Equal(167409079868000, solver.Part2("Day20/sample.txt"));
-    }
     
     [Fact]
     public void Test_Part2()
     {
         var solver = new Day20();
-        Assert.Equal(130090458884662, solver.Part2("Day20/input.txt"));
+        Assert.Equal(233283622908263, solver.Part2("Day20/input.txt"));
     }
 }
