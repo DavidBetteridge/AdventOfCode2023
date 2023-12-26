@@ -1,11 +1,11 @@
 ```mermaid
   graph TD;
-    broadcaster--> a;
-    broadcaster--> b;
-    broadcaster--> c;
-    %a --> b;
-    %b --> c;
-    %c --> inv;
-    &inv --> a;
+    broadcaster--> A;
+    broadcaster--> B;
+    broadcaster--> C;
+    B --> B;
+    B --> C;
+    C --> INV;
+    INV --> A;
 ```
 
