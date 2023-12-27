@@ -2,9 +2,7 @@ namespace AOC_2023.Solutions;
 
 public class Day25
 {
-    // (ldl, fpg)
-    // (hcf, lhn)
-    // (nxk, dfk)
+
 
     
     public long Part1(string filename)
@@ -32,7 +30,7 @@ public class Day25
                 links[rhs].Add(lhs);
             }
         }
-
+        
         var count = 0;
         foreach (var link1 in links)
         {
@@ -57,15 +55,54 @@ public class Day25
                                 Console.WriteLine($"{(lhs, rhs)}");
                                 Console.WriteLine($"{(step)}");
                                 Console.WriteLine($"{(step2)}");
-                                return 0;
+        
+                                var cluster1 = CountConnectedNodes(links.Keys.First(), links, new[] { (lhs, rhs), step, step2 });
+                                var cluster2 = links.Count - cluster1;
+                                return cluster1 * cluster2;
+                                
+                                // (ldl, fpg)
+                                // (hcf, lhn)
+                                // (nxk, dfk)
+                                // var cluster1 = CountConnectedNodes(links.Keys.First(), links, new[] { ("ldl", "fpg"), ("hcf", "lhn"), ("nxk", "dfk") });
+                                // var cluster2 = links.Count - cluster1;
+                                // return cluster1 * cluster2;
+                                
                             }
                         }
                     }
                 }
             }
         }
-        
-        return 0;
+
+        throw new Exception("No solution");
+    }
+
+    private int CountConnectedNodes(string start,
+                                    Dictionary<string, List<string>> links,
+                                    (string lhs, string rhs)[] avoiding)
+    {
+        var queue = new Queue<string>();
+        queue.Enqueue(start);
+        var seen = new HashSet<string>();
+
+        while (queue.Any())
+        {
+            var v = queue.Dequeue();
+            if (!seen.Contains(v))
+            {
+                foreach (var u in links[v])
+                {
+                    if (!avoiding.Contains((u, v)) && !avoiding.Contains((v, u)))
+                    {
+                        queue.Enqueue(u);
+                    }
+                }
+
+                seen.Add(v);
+            }
+        }
+
+        return seen.Count;
     }
 
     private List<(string from, string to)>? FindPath(
