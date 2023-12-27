@@ -1,8 +1,6 @@
-using Microsoft.Diagnostics.Tracing.Parsers.AspNet;
-
 namespace AOC_2023.Solutions;
 
-public class Day25
+public class Day25Original
 {
 
 
@@ -10,7 +8,7 @@ public class Day25
     public long Part1(string filename)
     {
         var lines = File.ReadAllLines(filename);
-        var linksAsText = new Dictionary<string, List<string>>();   // TODO: Could replace jqt etc with numbers 1...
+        var links = new Dictionary<string, List<string>>();   // TODO: Could replace jqt etc with numbers 1...
         
         foreach (var line in lines)
         {
@@ -18,46 +16,39 @@ public class Day25
             var lhs = sides[0];
             var rhss = sides[1].Split(' ');
 
-            if (!linksAsText.ContainsKey(lhs))
+            if (!links.ContainsKey(lhs))
             {
-                linksAsText.Add(lhs, new List<string>());
+                links.Add(lhs, new List<string>());
             }
                 
             foreach (var rhs in rhss)
             {
-                if (!linksAsText.ContainsKey(rhs))
-                    linksAsText.Add(rhs, new List<string>());
+                if (!links.ContainsKey(rhs))
+                    links.Add(rhs, new List<string>());
                 
-                linksAsText[lhs].Add(rhs);
-                linksAsText[rhs].Add(lhs);
+                links[lhs].Add(rhs);
+                links[rhs].Add(lhs);
             }
         }
-
-        var mapping = linksAsText.Keys.Select((k, i) => (k, i)).ToDictionary(k => k.k, v => v.i);
-        var links = new List<int>[mapping.Count];
-        foreach (var lnk in linksAsText)
-            links[mapping[lnk.Key]] = lnk.Value.Select(i => mapping[i]).ToList();
-
         
-        var distances = new int[links.Length];
-        var parents = new Dictionary<int,int>();
-        var seen = new bool[links.Length];
-        
-        for (var lhs = 0; lhs < links.Length; lhs++)
+        var count = 0;
+        foreach (var link1 in links)
         {
-            Console.WriteLine($"{lhs} of {links.Length}");
+            count++;
+            Console.WriteLine($"{count} of {links.Count}");
             
-            foreach (var rhs in links[lhs])
+            var lhs = link1.Key;
+            foreach (var rhs in link1.Value)
             {
-                if (rhs > lhs)
+                if (string.Compare(lhs, rhs, StringComparison.Ordinal) > 0)
                 {
-                    var path = FindPath(links, lhs, rhs, new[] { (lhs, rhs) }, distances,parents,seen);
+                    var path = FindPath(links, lhs, rhs, new[] { (lhs, rhs) });
                     foreach (var step in path!)
                     {
-                        var path2 = FindPath(links, lhs, rhs, new[] { (lhs, rhs), step }, distances,parents,seen);
+                        var path2 = FindPath(links, lhs, rhs, new[] { (lhs, rhs), step });
                         foreach (var step2 in path2!)
                         {
-                            var path3 = FindPath(links, lhs, rhs, new[] { (lhs, rhs), step, step2 }, distances,parents,seen);
+                            var path3 = FindPath(links, lhs, rhs, new[] { (lhs, rhs), step, step2 });
                             if (path3 is null)
                             {
                                 // Possible solution found.
@@ -65,8 +56,8 @@ public class Day25
                                 Console.WriteLine($"{(step)}");
                                 Console.WriteLine($"{(step2)}");
         
-                                var cluster1 = CountConnectedNodes(0, links, new[] { (lhs, rhs), step, step2 });
-                                var cluster2 = linksAsText.Count - cluster1;
+                                var cluster1 = CountConnectedNodes(links.Keys.First(), links, new[] { (lhs, rhs), step, step2 });
+                                var cluster2 = links.Count - cluster1;
                                 return cluster1 * cluster2;
                                 
                                 // (ldl, fpg)
@@ -86,13 +77,13 @@ public class Day25
         throw new Exception("No solution");
     }
 
-    private int CountConnectedNodes(int start,
-                                    List<int>[] links,
-                                    (int lhs, int rhs)[] avoiding)
+    private int CountConnectedNodes(string start,
+                                    Dictionary<string, List<string>> links,
+                                    (string lhs, string rhs)[] avoiding)
     {
-        var queue = new Queue<int>();
+        var queue = new Queue<string>();
         queue.Enqueue(start);
-        var seen = new HashSet<int>();
+        var seen = new HashSet<string>();
 
         while (queue.Any())
         {
@@ -114,37 +105,34 @@ public class Day25
         return seen.Count;
     }
 
-    private List<(int from, int to)>? FindPath(
-        List<int>[] links, 
-        int lhs,
-        int rhs, 
-        (int lhs, int rhs)[] avoiding,
-        int[] distances,
-        Dictionary<int,int> parents,
-        bool[] seen)
+    private List<(string from, string to)>? FindPath(
+        Dictionary<string, List<string>> links, 
+        string lhs,
+        string rhs, 
+        (string lhs, string rhs)[] avoiding)
     {
         // Find the shortest path from lhs to rhs, not using any links listed in avoiding.  If
         // no path exists (which is our aim!) then we return null.
         
         // Compute shortest paths from S
-        Array.Fill(distances, int.MaxValue);
+        var distances = new Dictionary<string,int>();
+        var parents = new Dictionary<string,string>();
+        var seen = new Dictionary<string,bool>();
         distances[lhs] = 0;
-        parents.Clear();
-        Array.Fill(seen, false);
 
-        for (var n = 0; n < links.Length; n++)
+        for (var n = 0; n < links.Count; n++)
         {
             var v = FindSmallest(seen, distances);
             seen[v] = true;
 
             // Where can we go from links[v]
-            if (distances[v] != int.MaxValue)
+            if (distances.GetValueOrDefault(v, int.MaxValue) != int.MaxValue)
             {
                 foreach (var u in links[v])
                 {
                     if (!avoiding.Contains((u, v)) && !avoiding.Contains((v, u)))
                     {
-                        if ((distances[v] + 1) < distances[u])
+                        if ((distances[v] + 1) < distances.GetValueOrDefault(u, int.MaxValue))
                         {
                             parents[u] = v; 
                             distances[u] = distances[v] + 1;
@@ -156,7 +144,7 @@ public class Day25
             if (v == rhs) break;
         }
 
-        var path = new List<(int, int)>();
+        var path = new List<(string, string)>();
         var to = rhs;
         while (to != lhs)
         {
@@ -169,20 +157,19 @@ public class Day25
         return path;
     }
     
-    private int FindSmallest(bool[] seen, int[] distances)
+    private string FindSmallest(Dictionary<string,bool> seen, Dictionary<string,int> distances)
     {
         var smallestCost = int.MaxValue;
-        var smallestIndex = -1;
+        var smallestIndex = "";
 
-        for (var i = 0; i < distances.Length; i++)
+        foreach (var key in distances.Keys)
         {
-            if (distances[i] <= smallestCost && !seen[i])
+            if (distances[key] <= smallestCost && !seen.GetValueOrDefault(key))
             {
-                smallestCost = distances[i];
-                smallestIndex = i;
+                smallestCost = distances[key];
+                smallestIndex = key;
             }
         }
-
         return smallestIndex;
     }
 
