@@ -2,6 +2,11 @@ namespace AOC_2023.Solutions;
 
 public class Day25
 {
+    // (ldl, fpg)
+    // (hcf, lhn)
+    // (nxk, dfk)
+
+    
     public long Part1(string filename)
     {
         var lines = File.ReadAllLines(filename);
@@ -18,7 +23,6 @@ public class Day25
                 links.Add(lhs, new List<string>());
             }
                 
-            
             foreach (var rhs in rhss)
             {
                 if (!links.ContainsKey(rhs))
@@ -99,6 +103,8 @@ public class Day25
                     }
                 }
             }
+
+            if (v == rhs) break;
         }
 
         var path = new List<(string, string)>();
