@@ -19,7 +19,7 @@ public class Day21Tests
     [Theory]
     [InlineData(6, 16)]
     [InlineData(10, 50)]
-  //  [InlineData(50, 1594)]
+   // [InlineData(50, 1594)]
     public void Test_Part2_Sample(int steps, int expected)
     {
         var solver = new Day21();

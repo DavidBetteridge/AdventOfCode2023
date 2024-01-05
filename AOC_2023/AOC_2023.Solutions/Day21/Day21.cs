@@ -114,6 +114,8 @@ public class Day21
             startRow++;
         }
 
+        var map = graph.Select(row => row.Select(cell => cell != '#').ToArray()).ToArray();
+        
         var visited = new HashSet<(int col, int row)>();
         var queue = new Queue<(int col, int row, int steps)>();
         queue.Enqueue((startCol, startRow, 0));
@@ -127,13 +129,13 @@ public class Day21
             }
             else
             {
-                if (graph[nmod(y,rows)][nmod(x - 1, cols)] != '#')
+                if (map[nmod(y,rows)][nmod(x - 1, cols)])
                     queue.Enqueue((x - 1, y, stepsTaken + 1));
-                if (graph[nmod(y-1,rows)][nmod(x,cols)] != '#')
+                if (map[nmod(y-1,rows)][nmod(x,cols)])
                     queue.Enqueue((x, y - 1, stepsTaken + 1));
-                if (graph[nmod(y,rows)][nmod(x+1,cols)] != '#')
+                if (map[nmod(y,rows)][nmod(x+1,cols)])
                     queue.Enqueue((x+1, y, stepsTaken + 1));
-                if (graph[nmod(y + 1,rows)][nmod(x,cols)] != '#')
+                if (map[nmod(y + 1,rows)][nmod(x,cols)])
                     queue.Enqueue((x, y+1, stepsTaken + 1));
             }
         }
