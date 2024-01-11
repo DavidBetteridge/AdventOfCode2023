@@ -1,39 +1,41 @@
 namespace AOC_2023.Solutions;
 
-public class RLParser
+public ref struct RLParser
 {
-    private string _line = "";
-    private int _offset;
-    
+    private ReadOnlySpan<char> _line;
+
     public void Reset(string line)
     {
-        _line = line;
-        _offset = line.Length-1;
+        _line = line.AsSpan();
     }
 
     public int EatNumber()
     {
         var length = 0;
-        while ((_offset - length >= 0) && char.IsDigit(_line[_offset-length]))
+        while ((_line.Length - length >= 0) && char.IsDigit(_line[^(1+length)]))
             length++;
-        var value = int.Parse(_line[(_offset - length)..(_offset+1)]);
-        _offset -= length;
+        var value = int.Parse(_line[^length..]);
+        _line=_line[..^(1+length)];
+        
+        while (_line.Length>=0 && char.IsWhiteSpace(_line[^1]))
+            _line=_line[..^1];
+        
         return value;
     }
 
-    public bool TryEat(char match)
+    public bool TryNotEat(char match)
     {
-        if (_offset >= 0 && _line[_offset] == match)
+        if (_line.Length >= 0 && _line[^1] == match)
         {
-            _offset -= 1;
-            return true;
+            _line=_line[..^1];
+            return false;
         }
-        return false;
+        return true;
     }
-
+    
     public void EatWhitespace()
     {
-        while (_offset>=0 && char.IsWhiteSpace(_line[_offset]))
-            _offset--;
+        while (_line.Length>=0 && char.IsWhiteSpace(_line[^1]))
+            _line=_line[..^1];
     }
 }

@@ -13,7 +13,7 @@ public class Day04
         {
             parser.Reset(line);
             var availableNumbers = new bool[100];
-            while (!parser.TryEat('|'))
+            while (parser.TryNotEat('|'))
             {
                 var nextNumber = parser.EatNumber();
                 availableNumbers[nextNumber] = true;
@@ -22,7 +22,7 @@ public class Day04
             parser.EatWhitespace();
 
             var matches = 0;
-            while (!parser.TryEat(':'))
+            while (parser.TryNotEat(':'))
             {
                 var nextNumber = parser.EatNumber();
                 parser.EatWhitespace();
@@ -42,7 +42,7 @@ public class Day04
         var lines = File.ReadAllLines(filename);
         var quantities = new int[lines.Length];
         
-        var parser = new RLParserSpan();
+        var parser = new RLParser();
         foreach (var line in lines)
         {
             quantities[cardId]++;
@@ -53,7 +53,7 @@ public class Day04
             {
                 var nextNumber = parser.EatNumber();
                 availableNumbers[nextNumber] = true;
-            } while (parser.TryEat('|'));
+            } while (parser.TryNotEat('|'));
             parser.EatWhitespace();
 
             var matches = 0;
@@ -63,7 +63,7 @@ public class Day04
                 var nextNumber = parser.EatNumber();
                 if (availableNumbers[nextNumber])
                     matches++;
-            } while (parser.TryEat(':'));
+            } while (parser.TryNotEat(':'));
             
             for (var nextCardOffset = 1; nextCardOffset <= matches; nextCardOffset++)
                 quantities[cardId + nextCardOffset] += quantities[cardId];
