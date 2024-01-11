@@ -1,21 +1,19 @@
-using System.Management;
-
 namespace AOC_2023.Solutions;
 
 public class Day05
 {
-    public ulong Part1(string filename)
+    public long Part1(string filename)
     {
-        var result = ulong.MaxValue;
+        var result = long.MaxValue;
         var text = File.ReadAllText(filename);
 
         var lrParser = new LRParser(text);
 
-        var seeds = new List<ulong>();
+        var seeds = new List<long>();
         lrParser.Eat("seeds: ");
         do
         {
-            seeds.Add(lrParser.EatULong());
+            seeds.Add(lrParser.EatLong());
             lrParser.EatWhitespace();
         } while (!lrParser.TryEat('\n'));
 
@@ -45,24 +43,33 @@ public class Day05
         return result;
     }
 
-    public ulong Part2(string filename)
+    public long Part2(string filename)
     {
-        var result = ulong.MaxValue;
+        var result = long.MaxValue;
         var text = File.ReadAllText(filename);
         var lrParser = new LRParser(text);
 
-        var seeds = new List<(ulong start, ulong length)>();
+        var seeds = new List<(long start, long length)>();
         lrParser.Eat("seeds: ");
         do
         {
-            var start = lrParser.EatULong();
+            var start = lrParser.EatLong();
             lrParser.EatWhitespace();
-            var length = lrParser.EatULong();
+            var length = lrParser.EatLong();
             lrParser.EatWhitespace();
             seeds.Add((start, length));
         } while (!lrParser.TryEat('\n'));
 
         lrParser.Eat('\n');
+
+        // Turn seeds into a map of ranges
+        var seedMaps = seeds.Select(seedPair => new Map
+        {
+            SourceStart = seedPair.start,
+            Offset = 0,
+            SourceEnd = seedPair.start + seedPair.length - 1
+        }).ToList();
+
 
         var seedToSoil = LoadMap(lrParser, "seed-to-soil");
         var soilTofFertilizer = LoadMap(lrParser, "soil-to-fertilizer");
@@ -72,47 +79,42 @@ public class Day05
         var temperatureToHumidity = LoadMap(lrParser, "temperature-to-humidity");
         var humidityToLocation = LoadMap(lrParser, "humidity-to-location");
 
-        // A Seeds 50..100   150...250
+        var sm = ApplyMap(seedMaps, seedToSoil);  //81
+        sm = ApplyMap(sm, soilTofFertilizer);    //81
+        sm = ApplyMap(sm, fertilizerToWater);    //81
+        sm = ApplyMap(sm, waterToLight);   //74
+        sm = ApplyMap(sm, lightToTemperature);  //78
+        sm = ApplyMap(sm, temperatureToHumidity); //78
+        sm = ApplyMap(sm, humidityToLocation); //82
         
-        // B Fertilizer 40..110  (+10)   160..220 +(20)
-        
-        // If StartB inside rangeA,  then split rangeA > Start
-        //     50..100   150..159  160..250
-        
-        // If EndB inside rangeA,  then split rangeA
-        //    50.100   150..159   160..220  221...250
-        
-        // If range from A falls instead range from B,  then increase A by offset
-     //   var merged = ApplyMap(ApplyMap(ApplyMap(seedToSoil, soilTofFertilizer),fertilizerToWater), waterToLight);
-        
-        
-        foreach (var seedPair in seeds)
-        {
-            for (ulong seedOffset = 0; seedOffset < seedPair.length; seedOffset++)
-            {
-                var seed = seedPair.start + seedOffset;
-               var soil = Lookup(seedToSoil, seed);
-               var fertilizer = Lookup(soilTofFertilizer, soil);
-             //   var light = Lookup(merged, seed);
-              var water = Lookup(fertilizerToWater, fertilizer);
-              var light = Lookup(waterToLight, water);
-                var temperature = Lookup(lightToTemperature, light);
-                var humidity = Lookup(temperatureToHumidity, temperature);
-                
-                var location = Lookup(humidityToLocation, humidity);
-                result = Math.Min(result, location);
-            }
-        }
+        result = sm.Min(m => m.SourceStart);
+
+        // foreach (var seedPair in seedMaps)
+        // {
+        //     for (var seed = seedPair.SourceStart; seed <= seedPair.SourceEnd; seed++)
+        //     {
+        //         var soil = Lookup(seedToSoil, seed);
+        //         
+        //         var fertilizer = Lookup(soilTofFertilizer, soil);
+        //         
+        //         var water = Lookup(fertilizerToWater, fertilizer);
+        //         
+        //         var light = Lookup(waterToLight, water);
+        //         
+        //         var temperature = Lookup(lightToTemperature, light);
+        //         
+        //         var humidity = Lookup(temperatureToHumidity, temperature);
+        //
+        //         var location = Lookup(humidityToLocation, humidity);
+        //         result = Math.Min(result, location);
+        //     }
+        // }
 
         return result;
     }
 
     private List<Map> ApplyMap(List<Map> mapA, List<Map> mapB)
     {
-                
-        // map A
-        // map B
-        
         // For each map B, if B.Start or B.End falls in a map A, then split Map A
         // Then for each map A,  increase it, by it's map B offset.
 
@@ -123,71 +125,77 @@ public class Day05
              *        10.20
              *     1..9  10.10
              */
-            var toSplitSource = mapA.SingleOrDefault(r => r.SourceStart > map.SourceStart 
-                                                    && r.SourceEnd <= map.SourceStart);
-            if (toSplitSource is not null)
+            foreach (var toSplitSource in mapA.Where(r => map.SourceStart > r.SourceStart
+                                                       && map.SourceStart <= r.SourceEnd).ToList())
             {
                 var lhs = new Map
                 {
                     SourceStart = toSplitSource.SourceStart,
-                    SourceEnd = map.SourceStart - 1,
-                    Offset = toSplitSource.Offset
+                    SourceEnd = map.SourceStart - 1
                 };
-                
+
                 var rhs = new Map
                 {
                     SourceStart = map.SourceStart,
-                    SourceEnd = map.SourceEnd,
-                    Offset = toSplitSource.Offset
+                    SourceEnd = toSplitSource.SourceEnd
                 };
 
                 mapA.Remove(toSplitSource);
                 mapA.Add(lhs);
                 mapA.Add(rhs);
             }
-            
+
             /*
              *       10.20
-             *   1..11    
+             *   1..11
              *     10..11  12.20
              */
-            var toSplitTarget = mapA.SingleOrDefault(r => r.SourceStart >= map.SourceEnd 
-                                                          && r.SourceEnd < map.SourceEnd);
-            if (toSplitTarget is not null)
+            foreach (var toSplitTarget in mapA.Where(r => map.SourceEnd > r.SourceStart
+                                                       && map.SourceEnd < r.SourceEnd).ToList())
             {
                 var lhs = new Map
                 {
                     SourceStart = toSplitTarget.SourceStart,
-                    SourceEnd = map.SourceEnd,
-                    Offset = toSplitTarget.Offset
+                    SourceEnd = map.SourceEnd
                 };
-                
+
                 var rhs = new Map
                 {
-                    SourceStart = map.SourceEnd+1,
-                    SourceEnd = toSplitTarget.SourceEnd,
-                    Offset = toSplitTarget.Offset
+                    SourceStart = map.SourceEnd + 1,
+                    SourceEnd = toSplitTarget.SourceEnd
                 };
-            
+
                 mapA.Remove(toSplitTarget);
                 mapA.Add(lhs);
                 mapA.Add(rhs);
             }
         }
-        
+
         // If range from A falls instead range from B,  then increase A by offset
+        var result = new List<Map>();
         foreach (var map in mapA)
         {
-            var target = mapB.SingleOrDefault(b => b.SourceStart <= map.SourceStart 
+            var target = mapB.SingleOrDefault(b => b.SourceStart <= map.SourceStart
                                                    && b.SourceEnd >= map.SourceEnd);
             if (target is not null)
             {
-                map.SourceStart += target.Offset;
-                map.SourceEnd += target.Offset;
+                result.Add(new Map
+                {
+                    SourceStart = map.SourceStart+ target.Offset,
+                    SourceEnd = map.SourceEnd+ target.Offset
+                });
+            }
+            else
+            {
+                result.Add(new Map
+                {
+                    SourceStart = map.SourceStart,
+                    SourceEnd = map.SourceEnd
+                });
             }
         }
-        
-        return mapA;
+
+        return result;
     }
 
     private List<Map> LoadMap(LRParser lrParser, string mapName)
@@ -198,16 +206,16 @@ public class Day05
         {
             do
             {
-                var destination = lrParser.EatULong();
+                var destination = lrParser.EatLong();
                 lrParser.EatWhitespace();
-                var source = lrParser.EatULong();
+                var source = lrParser.EatLong();
                 lrParser.EatWhitespace();
-                var range = lrParser.EatULong();
+                var range = lrParser.EatLong();
                 lrParser.EatWhitespace();
                 maps.Add(new Map
                 {
-                    SourceStart = source,   // 10
-                    Offset = destination - source,   // 11-10 = 1
+                    SourceStart = source, // 10
+                    Offset = destination - source, // 11-10 = 1
                     SourceEnd = source + range - 1 // 10 11 12
                 });
             } while (!lrParser.TryEat('\n') && !lrParser.EOF);
@@ -216,7 +224,7 @@ public class Day05
         return maps;
     }
 
-    private ulong Lookup(List<Map> maps, ulong value)
+    private long Lookup(List<Map> maps, long value)
     {
         foreach (var map in maps)
         {
@@ -231,8 +239,8 @@ public class Day05
 
     private record Map
     {
-        public ulong SourceStart { get; set; }
-        public ulong Offset { get; set; }
-        public ulong SourceEnd { get; set; }
+        public long SourceStart { get; set; }
+        public long Offset { get; set; }
+        public long SourceEnd { get; set; }
     }
 }
