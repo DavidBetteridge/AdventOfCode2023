@@ -4,95 +4,71 @@ public class Day04
 {
     public int Part1(string filename)
     {
+        // Card 1: 41 48 83 86 17 | 83 86  6 31 17  9 48 53
         var result = 0;
         var lines = File.ReadAllLines(filename);
         
-        var lrParser = new LRParser("");
+        var parser = new RLParser();
         foreach (var line in lines)
         {
-            var availableNumbers = new HashSet<int>();
-            var numbersToFind = new HashSet<int>();
-            lrParser.Reset(line);
-            lrParser.Eat("Card");
-            lrParser.EatWhitespace();
-            var cardId = lrParser.EatNumber();
-            lrParser.Eat(":");
-            lrParser.EatWhitespace();
-            
-            while (!lrParser.TryEat("|"))
+            parser.Reset(line);
+            var availableNumbers = new bool[100];
+            while (!parser.TryEat('|'))
             {
-                var nextNumber = lrParser.EatNumber();
-                numbersToFind.Add(nextNumber);
-                lrParser.EatWhitespace();
+                var nextNumber = parser.EatNumber();
+                availableNumbers[nextNumber] = true;
+                parser.EatWhitespace();
             }
-            lrParser.EatWhitespace();
-            
-            while (!lrParser.EOF)
-            {
-                var nextNumber = lrParser.EatNumber();
-                availableNumbers.Add(nextNumber);
-                lrParser.EatWhitespace();
-            }
+            parser.EatWhitespace();
 
             var matches = 0;
-            foreach (var numberToFind in numbersToFind)
+            while (!parser.TryEat(':'))
             {
-                if (availableNumbers.Contains(numberToFind))
+                var nextNumber = parser.EatNumber();
+                parser.EatWhitespace();
+                
+                if (availableNumbers[nextNumber])
                     matches = matches == 0 ? 1 : matches << 1;
             }
-
             result += matches;
         }
 
         return result;
     }
-
+    
     public int Part2(string filename)
     {
+        var cardId = 0;
         var lines = File.ReadAllLines(filename);
         var quantities = new int[lines.Length];
         
-        var lrParser = new LRParser("");
+        var parser = new RLParserSpan();
         foreach (var line in lines)
         {
-            var availableNumbers = new HashSet<int>();
-            var numbersToFind = new HashSet<int>();
-            lrParser.Reset(line);
-            lrParser.Eat("Card");
-            lrParser.EatWhitespace();
-            var cardId = lrParser.EatNumber();
-            quantities[cardId-1]++;
+            quantities[cardId]++;
+            parser.Reset(line);
+            var availableNumbers = new bool[100];
 
-            lrParser.Eat(":");
-            lrParser.EatWhitespace();
-            
-            while (!lrParser.TryEat("|"))
+            do
             {
-                var nextNumber = lrParser.EatNumber();
-                numbersToFind.Add(nextNumber);
-                lrParser.EatWhitespace();
-            }
-            lrParser.EatWhitespace();
-            
-            while (!lrParser.EOF)
-            {
-                var nextNumber = lrParser.EatNumber();
-                availableNumbers.Add(nextNumber);
-                lrParser.EatWhitespace();
-            }
+                var nextNumber = parser.EatNumber();
+                availableNumbers[nextNumber] = true;
+            } while (parser.TryEat('|'));
+            parser.EatWhitespace();
 
             var matches = 0;
-            foreach (var numberToFind in numbersToFind)
-            {
-                if (availableNumbers.Contains(numberToFind))
-                    matches++;
-            }
 
-            for (var nextCardOffset = 1; nextCardOffset <= matches; nextCardOffset++)
+            do
             {
-                if ((cardId-1) + nextCardOffset < lines.Length)
-                    quantities[cardId + nextCardOffset-1] += quantities[cardId-1];
-            }
+                var nextNumber = parser.EatNumber();
+                if (availableNumbers[nextNumber])
+                    matches++;
+            } while (parser.TryEat(':'));
+            
+            for (var nextCardOffset = 1; nextCardOffset <= matches; nextCardOffset++)
+                quantities[cardId + nextCardOffset] += quantities[cardId];
+
+            cardId++;
         }
 
         return quantities.Sum();
