@@ -72,6 +72,16 @@ public ref struct LRParserSpan
         return false;
     }
     
+    public bool TryEat(string match)
+    {
+        if (_line.StartsWith(match))
+        {
+            _line = _line[(match.Length)..];
+            return true;
+        }
+        return false;
+    }
+    
     public void EatWhitespace()
     {
         while (!EOF && _line[0] == ' ')

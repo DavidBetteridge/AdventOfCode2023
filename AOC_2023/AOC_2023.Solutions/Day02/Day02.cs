@@ -6,35 +6,42 @@ public class Day02
     {
         var result = 0;
         var lines = File.ReadAllLines(filename);
+        var lrParser = new LRParserSpan();
         foreach (var line in lines)
         {
-            var gameId = line.Split(":")[0];
-            var id = gameId[5..];
-            var draws = line.Split(": ")[1];
-            var selections = draws.Split("; ");
             var invalid = false;
-            foreach (var selection in selections)
+            lrParser.Reset(line);
+            
+            lrParser.Eat("Game ");
+            var id = lrParser.EatNumber();
+            lrParser.Eat(": ");
+            while (!lrParser.EOF)
             {
-                var colours = selection.Split(", ");
-                foreach (var colourAndQuantity in colours)
+                var quantity = lrParser.EatNumber();
+                lrParser.Eat(' ');
+                var colour = lrParser.EatWord();
+                if (!lrParser.TryEat(", "))
+                    lrParser.TryEat("; ");
+                if (colour == "red" && quantity > 12)
                 {
-                    var colour = colourAndQuantity.Split(" ")[1];
-                    var quantity = int.Parse(colourAndQuantity.Split(" ")[0]);
+                    invalid = true;
+                    break;
+                }
 
-                    if (colour == "red" && quantity > 12)
-                        invalid = true;
-
-                    if (colour == "green" && quantity > 13)
-                        invalid = true;
+                if (colour == "green" && quantity > 13)
+                {
+                    invalid = true;
+                    break;
+                }
                     
-                    if (colour == "blue" && quantity > 14)
-                        invalid = true;
-                    
+                if (colour == "blue" && quantity > 14)
+                {
+                    invalid = true;
+                    break;
                 }
             }
-
             if (!invalid)
-                result += int.Parse(id);
+                result += id;
         }
 
         return result;
@@ -44,36 +51,37 @@ public class Day02
     {
         var result = 0;
         var lines = File.ReadAllLines(filename);
+        var lrParser = new LRParserSpan();
         foreach (var line in lines)
         {
-            var gameId = line.Split(":")[0];
-            var draws = line.Split(": ")[1];
-            var selections = draws.Split("; ");
-
             var maxRed = 0;
             var maxGreen = 0;
             var maxBlue = 0;
-            
-            foreach (var selection in selections)
+            lrParser.Reset(line);
+            lrParser.Eat("Game ");
+            lrParser.EatNumber();
+            lrParser.Eat(": ");
+            while (!lrParser.EOF)
             {
-                var colours = selection.Split(", ");
-                foreach (var colourAndQuantity in colours)
+                var quantity = lrParser.EatNumber();
+                lrParser.Eat(' ');
+                var colour = lrParser.EatWord();
+                if (!lrParser.TryEat(", "))
+                    lrParser.TryEat("; ");
+                
+                switch (colour)
                 {
-                    var colour = colourAndQuantity.Split(" ")[1];
-                    var quantity = int.Parse(colourAndQuantity.Split(" ")[0]);
-
-                    if (colour == "red")
+                    case "red":
                         maxRed = Math.Max(maxRed, quantity);
-
-                    if (colour == "green")
+                        break;
+                    case "green":
                         maxGreen = Math.Max(maxGreen, quantity);
-                    
-                    if (colour == "blue")
+                        break;
+                    default:
                         maxBlue = Math.Max(maxBlue, quantity);
-                    
+                        break;
                 }
             }
-
             result += (maxRed * maxGreen * maxBlue);
         }
 
