@@ -20,13 +20,9 @@ public class Day08
         {
             lrParser.Reset(line);
             var start = lrParser.EatWord();
-            lrParser.EatWhitespace();
-            lrParser.Eat('=');
-            lrParser.EatWhitespace();
-            lrParser.Eat('(');
+            lrParser.Eat(" = (");
             var left = lrParser.EatWord();
-            lrParser.Eat(',');
-            lrParser.EatWhitespace();
+            lrParser.Eat(", ");
             var right = lrParser.EatWord();
             lrParser.Eat(')');
             rules.Add(start, new Rule { LHS = left, RHS = right });
@@ -34,7 +30,7 @@ public class Day08
 
         var moves = 0;
         var current = "AAA";
-        while (current != "ZZZ")
+        do
         {
             var nextMove = instructions[moves % instructions.Length];
             if (nextMove == 'L')
@@ -42,7 +38,7 @@ public class Day08
             else
                 current = rules[current].RHS;
             moves++;
-        }
+        } while (current != "ZZZ");
 
         return moves;
     }
