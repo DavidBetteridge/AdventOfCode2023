@@ -9,27 +9,40 @@ public class Day08
         public string RHS { get; set; }
     }
 
+    private struct RulePart1
+    {
+        public int LHS { get; set; }
+        public int RHS { get; set; }
+    }
+    
     public int Part1(string filename)
     {
         var lines = File.ReadAllLines(filename);
-        var lrParser = new LRParser();
+        var length = lines.Length - 2;
+      //  var lrParser = new LRParser();
 
         var instructions = lines[0];
-        var rules = new Dictionary<string, Rule>();
-        foreach (var line in lines[2..])
+        var rules = new RulePart1[length];
+        var mapping = new Dictionary<string, int>(length);
+
+        for (var i = 0; i < length; i++)
         {
-            lrParser.Reset(line);
-            var start = lrParser.EatWord();
-            lrParser.Eat(" = (");
-            var left = lrParser.EatWord();
-            lrParser.Eat(", ");
-            var right = lrParser.EatWord();
-            lrParser.Eat(')');
-            rules.Add(start, new Rule { LHS = left, RHS = right });
+            var line = lines[i + 2];
+            var start = line[..3];
+            mapping.Add(start, i);
         }
 
+        for (var i = 0; i < length; i++)
+        {
+            var line = lines[i + 2];
+            var left = line[7..10];
+            var right = line[12..15];
+            rules[i] = new RulePart1 { LHS = mapping[left], RHS = mapping[right] };
+        }
+        
         var moves = 0;
-        var current = "AAA";
+        var current = mapping["AAA"];
+        var finish = mapping["ZZZ"];
         do
         {
             var nextMove = instructions[moves % instructions.Length];
@@ -38,7 +51,7 @@ public class Day08
             else
                 current = rules[current].RHS;
             moves++;
-        } while (current != "ZZZ");
+        } while (current != finish);
 
         return moves;
     }
