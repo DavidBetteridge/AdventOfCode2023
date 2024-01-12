@@ -5,7 +5,7 @@ public class Day06
     public int Part1(string filename)
     {
         var text = File.ReadAllText(filename);
-        var lrParser = new LRParserSpan(text);
+        var lrParser = new LRParser(text);
 
         var times = new List<int>();
         lrParser.Eat("Time:");
@@ -51,7 +51,7 @@ public class Day06
     public int Part2(string filename)
     {
         var text = File.ReadAllText(filename);
-        var lrParser = new LRParserSpan(text);
+        var lrParser = new LRParser(text);
 
         var timeStr = "";
         lrParser.Eat("Time:");

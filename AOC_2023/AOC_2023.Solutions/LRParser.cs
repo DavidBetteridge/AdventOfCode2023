@@ -1,15 +1,9 @@
 namespace AOC_2023.Solutions;
 
-public class LRParser
+public ref struct LRParser
 {
-    private string _line = "";
-    private int _offset;
+    private ReadOnlySpan<char> _line;
 
-    public LRParser()
-    {
-        Reset("");
-    }
-    
     public LRParser(string line)
     {
         Reset(line);
@@ -17,61 +11,62 @@ public class LRParser
 
     public void Reset(string line)
     {
-        _line = line;
-        _offset = 0;
+        _line = line.AsSpan();
     }
     
-    public void Eat(char match)
-    {
-        if (_line[_offset] == match)
-            _offset += 1;
-        else
-            throw new Exception($"{match} not found at position {_offset}");
-    }
     public void Eat(string match)
     {
-        if (_line[_offset..(_offset + match.Length)] == match)
-            _offset += match.Length;
+        if (_line.StartsWith(match))
+            _line = _line[match.Length..];
         else
-            throw new Exception($"{match} not found at position {_offset}");
+            throw new Exception($"{match} not found.");
     }
 
-    public ulong EatULong()
+    public void Eat(char match)
     {
-        var length = 0;
-        while ((_offset + length < _line.Length) && char.IsDigit(_line[_offset+length]))
-            length++;
-        var value = ulong.Parse(_line[_offset..(_offset + length)]);
-        _offset += length;
-        return value;
+        if (_line[0] == match)
+            _line = _line[1..];
+        else
+            throw new Exception($"{match} not found.");
     }
+    
     public int EatNumber()
     {
         var length = 0;
-        while ((_offset + length < _line.Length) && char.IsDigit(_line[_offset+length]))
+        while (length < _line.Length && (char.IsDigit(_line[length]) || _line[length] == '-' ))
             length++;
-        var value = int.Parse(_line[_offset..(_offset + length)]);
-        _offset += length;
+        var value = int.Parse(_line[..length]);
+        _line = _line[length..];
         return value;
     }
 
     public string EatWord()
     {
         var length = 0;
-        while ((_offset + length < _line.Length) && char.IsLetterOrDigit(_line[_offset+length]))
+        while (length < _line.Length && char.IsLetterOrDigit(_line[length]))
             length++;
-        var value = _line[_offset..(_offset + length)];
-        _offset += length;
-        return value;
+        var value = _line[..length];
+        _line = _line[length..];
+        return value.ToString();
     }
-        
-    public bool EOF => (_offset + 1) > _line.Length;
+     
+    public long EatLong()
+    {
+        var length = 0;
+        while (length < _line.Length && char.IsLetterOrDigit(_line[length]))
+            length++;
+        var value = _line[..length];
+        _line = _line[length..];
+        return long.Parse(value);
+    }
+    
+    public bool EOF => _line.Length == 0;
 
     public bool TryEat(char match)
     {
-        if (!EOF && _line[_offset] == match)
+        if (!EOF && _line[0] == match)
         {
-            _offset += 1;
+            _line = _line[1..];
             return true;
         }
         return false;
@@ -79,17 +74,24 @@ public class LRParser
     
     public bool TryEat(string match)
     {
-        if (!EOF && _line[_offset..(_offset + match.Length)] == match)
+        if (_line.StartsWith(match))
         {
-            _offset += match.Length;
+            _line = _line[(match.Length)..];
             return true;
         }
         return false;
     }
-
+    
     public void EatWhitespace()
     {
-        while (!EOF && _line[_offset] == ' ')
-            _offset++;
+        while (!EOF && _line[0] == ' ')
+            _line = _line[1..];
+    }
+
+    public char EatChar()
+    {
+        var c = _line[0];
+        _line = _line[1..];
+        return c;
     }
 }

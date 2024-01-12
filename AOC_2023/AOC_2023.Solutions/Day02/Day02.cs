@@ -6,7 +6,7 @@ public class Day02
     {
         var result = 0;
         var lines = File.ReadAllLines(filename);
-        var lrParser = new LRParserSpan();
+        var lrParser = new LRParser();
         foreach (var line in lines)
         {
             var invalid = false;
@@ -51,7 +51,7 @@ public class Day02
     {
         var result = 0;
         var lines = File.ReadAllLines(filename);
-        var lrParser = new LRParserSpan();
+        var lrParser = new LRParser();
         foreach (var line in lines)
         {
             var maxRed = 0;

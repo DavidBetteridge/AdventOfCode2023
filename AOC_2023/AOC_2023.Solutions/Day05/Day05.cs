@@ -7,7 +7,7 @@ public class Day05
         var result = long.MaxValue;
         var text = File.ReadAllText(filename);
 
-        var lrParser = new LRParserSpan(text);
+        var lrParser = new LRParser(text);
 
         var seeds = new List<long>();
         lrParser.Eat("seeds: ");
@@ -46,7 +46,7 @@ public class Day05
     public long Part2(string filename)
     {
         var text = File.ReadAllText(filename);
-        var lrParser = new LRParserSpan(text);
+        var lrParser = new LRParser(text);
 
         var seeds = new List<Map>();
         lrParser.Eat("seeds: ");
@@ -153,7 +153,7 @@ public class Day05
         }
     }
 
-    private List<Map> LoadMap(ref LRParserSpan lrParser, string mapName)
+    private List<Map> LoadMap(ref LRParser lrParser, string mapName)
     {
         var maps = new List<Map>();
         lrParser.Eat(mapName + " map:\n");

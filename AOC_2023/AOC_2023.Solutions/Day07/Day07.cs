@@ -27,7 +27,7 @@ public class Day07
     private int Solve(string filename, Dictionary<char, int> map)
     {
         var lines = File.ReadLines(filename);
-        var lrParser = new LRParserSpan();
+        var lrParser = new LRParser();
 
         var hands = new List<Hand>();
         var values = new int[15];
