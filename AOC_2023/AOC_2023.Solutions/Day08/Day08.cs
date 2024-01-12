@@ -12,7 +12,7 @@ public class Day08
     public int Part1(string filename)
     {
         var lines = File.ReadAllLines(filename);
-        var lrParser = new LRParserSpan();
+        var lrParser = new LRParser();
 
         var instructions = lines[0];
         var rules = new Dictionary<string, Rule>();
