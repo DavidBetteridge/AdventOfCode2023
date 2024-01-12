@@ -50,14 +50,14 @@ public ref struct LRParserSpan
         return value.ToString();
     }
      
-    public ulong EatUlong()
+    public long EatLong()
     {
         var length = 0;
         while (length < _line.Length && char.IsLetterOrDigit(_line[length]))
             length++;
         var value = _line[..length];
         _line = _line[length..];
-        return ulong.Parse(value);
+        return long.Parse(value);
     }
     
     public bool EOF => _line.Length == 0;

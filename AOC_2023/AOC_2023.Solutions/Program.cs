@@ -1,6 +1,6 @@
 using AOC_2023.Solutions;
 using BenchmarkDotNet.Running;
-BenchmarkRunner.Run<Day04BenchmarkTests>();
+BenchmarkRunner.Run<Day05BenchmarkTests>();
 
 
 // var solver = new Day21();

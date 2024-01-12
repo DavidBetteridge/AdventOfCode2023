@@ -7,7 +7,7 @@ public class Day05
         var result = long.MaxValue;
         var text = File.ReadAllText(filename);
 
-        var lrParser = new LRParser(text);
+        var lrParser = new LRParserSpan(text);
 
         var seeds = new List<long>();
         lrParser.Eat("seeds: ");
@@ -20,13 +20,13 @@ public class Day05
         lrParser.Eat('\n');
 
 
-        var seedToSoil = LoadMap(lrParser, "seed-to-soil");
-        var soilTofFertilizer = LoadMap(lrParser, "soil-to-fertilizer");
-        var fertilizerToWater = LoadMap(lrParser, "fertilizer-to-water");
-        var waterToLight = LoadMap(lrParser, "water-to-light");
-        var lightToTemperature = LoadMap(lrParser, "light-to-temperature");
-        var temperatureToHumidity = LoadMap(lrParser, "temperature-to-humidity");
-        var humidityToLocation = LoadMap(lrParser, "humidity-to-location");
+        var seedToSoil = LoadMap(ref lrParser, "seed-to-soil");
+        var soilTofFertilizer = LoadMap(ref lrParser, "soil-to-fertilizer");
+        var fertilizerToWater = LoadMap(ref lrParser, "fertilizer-to-water");
+        var waterToLight = LoadMap(ref lrParser, "water-to-light");
+        var lightToTemperature = LoadMap(ref lrParser, "light-to-temperature");
+        var temperatureToHumidity = LoadMap(ref lrParser, "temperature-to-humidity");
+        var humidityToLocation = LoadMap(ref lrParser, "humidity-to-location");
 
         foreach (var seed in seeds)
         {
@@ -45,11 +45,10 @@ public class Day05
 
     public long Part2(string filename)
     {
-        var result = long.MaxValue;
         var text = File.ReadAllText(filename);
-        var lrParser = new LRParser(text);
+        var lrParser = new LRParserSpan(text);
 
-        var seeds = new List<(long start, long length)>();
+        var seeds = new List<Map>();
         lrParser.Eat("seeds: ");
         do
         {
@@ -57,60 +56,30 @@ public class Day05
             lrParser.EatWhitespace();
             var length = lrParser.EatLong();
             lrParser.EatWhitespace();
-            seeds.Add((start, length));
+            seeds.Add(new Map
+            {
+                SourceStart = start,
+                SourceEnd = start + length - 1
+            });
         } while (!lrParser.TryEat('\n'));
-
         lrParser.Eat('\n');
 
-        // Turn seeds into a map of ranges
-        var seedMaps = seeds.Select(seedPair => new Map
-        {
-            SourceStart = seedPair.start,
-            Offset = 0,
-            SourceEnd = seedPair.start + seedPair.length - 1
-        }).ToList();
+        var seedToSoil = LoadMap(ref lrParser, "seed-to-soil");
+        var soilTofFertilizer = LoadMap(ref lrParser, "soil-to-fertilizer");
+        var fertilizerToWater = LoadMap(ref lrParser, "fertilizer-to-water");
+        var waterToLight = LoadMap(ref lrParser, "water-to-light");
+        var lightToTemperature = LoadMap(ref lrParser, "light-to-temperature");
+        var temperatureToHumidity = LoadMap(ref lrParser, "temperature-to-humidity");
+        var humidityToLocation = LoadMap(ref lrParser, "humidity-to-location");
 
-
-        var seedToSoil = LoadMap(lrParser, "seed-to-soil");
-        var soilTofFertilizer = LoadMap(lrParser, "soil-to-fertilizer");
-        var fertilizerToWater = LoadMap(lrParser, "fertilizer-to-water");
-        var waterToLight = LoadMap(lrParser, "water-to-light");
-        var lightToTemperature = LoadMap(lrParser, "light-to-temperature");
-        var temperatureToHumidity = LoadMap(lrParser, "temperature-to-humidity");
-        var humidityToLocation = LoadMap(lrParser, "humidity-to-location");
-
-        var sm = ApplyMap(seedMaps, seedToSoil);  //81
-        sm = ApplyMap(sm, soilTofFertilizer);    //81
-        sm = ApplyMap(sm, fertilizerToWater);    //81
-        sm = ApplyMap(sm, waterToLight);   //74
-        sm = ApplyMap(sm, lightToTemperature);  //78
-        sm = ApplyMap(sm, temperatureToHumidity); //78
-        sm = ApplyMap(sm, humidityToLocation); //82
-        
-        result = sm.Min(m => m.SourceStart);
-
-        // foreach (var seedPair in seedMaps)
-        // {
-        //     for (var seed = seedPair.SourceStart; seed <= seedPair.SourceEnd; seed++)
-        //     {
-        //         var soil = Lookup(seedToSoil, seed);
-        //         
-        //         var fertilizer = Lookup(soilTofFertilizer, soil);
-        //         
-        //         var water = Lookup(fertilizerToWater, fertilizer);
-        //         
-        //         var light = Lookup(waterToLight, water);
-        //         
-        //         var temperature = Lookup(lightToTemperature, light);
-        //         
-        //         var humidity = Lookup(temperatureToHumidity, temperature);
-        //
-        //         var location = Lookup(humidityToLocation, humidity);
-        //         result = Math.Min(result, location);
-        //     }
-        // }
-
-        return result;
+        var sm = ApplyMap(seeds, seedToSoil);
+        sm = ApplyMap(sm, soilTofFertilizer);
+        sm = ApplyMap(sm, fertilizerToWater);
+        sm = ApplyMap(sm, waterToLight);
+        sm = ApplyMap(sm, lightToTemperature);
+        sm = ApplyMap(sm, temperatureToHumidity);
+        sm = ApplyMap(sm, humidityToLocation);
+        return sm.Min(m => m.SourceStart);
     }
 
     private List<Map> ApplyMap(List<Map> mapA, List<Map> mapB)
@@ -128,21 +97,12 @@ public class Day05
             foreach (var toSplitSource in mapA.Where(r => map.SourceStart > r.SourceStart
                                                        && map.SourceStart <= r.SourceEnd).ToList())
             {
-                var lhs = new Map
+                mapA.Add(new Map
                 {
                     SourceStart = toSplitSource.SourceStart,
                     SourceEnd = map.SourceStart - 1
-                };
-
-                var rhs = new Map
-                {
-                    SourceStart = map.SourceStart,
-                    SourceEnd = toSplitSource.SourceEnd
-                };
-
-                mapA.Remove(toSplitSource);
-                mapA.Add(lhs);
-                mapA.Add(rhs);
+                });
+                toSplitSource.SourceStart = map.SourceStart;
             }
 
             /*
@@ -153,21 +113,12 @@ public class Day05
             foreach (var toSplitTarget in mapA.Where(r => map.SourceEnd > r.SourceStart
                                                        && map.SourceEnd < r.SourceEnd).ToList())
             {
-                var lhs = new Map
+                mapA.Add(new Map
                 {
                     SourceStart = toSplitTarget.SourceStart,
                     SourceEnd = map.SourceEnd
-                };
-
-                var rhs = new Map
-                {
-                    SourceStart = map.SourceEnd + 1,
-                    SourceEnd = toSplitTarget.SourceEnd
-                };
-
-                mapA.Remove(toSplitTarget);
-                mapA.Add(lhs);
-                mapA.Add(rhs);
+                });
+                toSplitTarget.SourceStart = map.SourceEnd + 1;
             }
         }
 
@@ -198,7 +149,7 @@ public class Day05
         return result;
     }
 
-    private List<Map> LoadMap(LRParser lrParser, string mapName)
+    private List<Map> LoadMap(ref LRParserSpan lrParser, string mapName)
     {
         var maps = new List<Map>();
         lrParser.Eat(mapName + " map:\n");
