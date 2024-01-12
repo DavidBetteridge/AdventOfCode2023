@@ -64,25 +64,41 @@ public class Day05
         } while (!lrParser.TryEat('\n'));
         lrParser.Eat('\n');
 
-        var seedToSoil = LoadMap(ref lrParser, "seed-to-soil");
-        var soilTofFertilizer = LoadMap(ref lrParser, "soil-to-fertilizer");
-        var fertilizerToWater = LoadMap(ref lrParser, "fertilizer-to-water");
-        var waterToLight = LoadMap(ref lrParser, "water-to-light");
-        var lightToTemperature = LoadMap(ref lrParser, "light-to-temperature");
-        var temperatureToHumidity = LoadMap(ref lrParser, "temperature-to-humidity");
-        var humidityToLocation = LoadMap(ref lrParser, "humidity-to-location");
+        var maps = new List<Map>();
+        foreach (var mapName in new []
+                 {
+                     "seed-to-soil","soil-to-fertilizer","fertilizer-to-water","water-to-light",
+                     "light-to-temperature","temperature-to-humidity","humidity-to-location"
+                 })
+        {
+            maps.Clear();
+            lrParser.Eat(mapName + " map:\n");
+            do
+            {
+                do
+                {
+                    var destination = lrParser.EatLong();
+                    lrParser.EatWhitespace();
+                    var source = lrParser.EatLong();
+                    lrParser.EatWhitespace();
+                    var range = lrParser.EatLong();
+                    lrParser.EatWhitespace();
+                    maps.Add(new Map
+                    {
+                        SourceStart = source, // 10
+                        Offset = destination - source, // 11-10 = 1
+                        SourceEnd = source + range - 1 // 10 11 12
+                    });
+                } while (!lrParser.TryEat('\n') && !lrParser.EOF);
+            } while (!lrParser.TryEat('\n') && !lrParser.EOF);
+            
+            ApplyMap(seeds, maps);
+        }
 
-        var sm = ApplyMap(seeds, seedToSoil);
-        sm = ApplyMap(sm, soilTofFertilizer);
-        sm = ApplyMap(sm, fertilizerToWater);
-        sm = ApplyMap(sm, waterToLight);
-        sm = ApplyMap(sm, lightToTemperature);
-        sm = ApplyMap(sm, temperatureToHumidity);
-        sm = ApplyMap(sm, humidityToLocation);
-        return sm.Min(m => m.SourceStart);
+        return seeds.Min(m => m.SourceStart);
     }
 
-    private List<Map> ApplyMap(List<Map> mapA, List<Map> mapB)
+    private void ApplyMap(List<Map> mapA, List<Map> mapB)
     {
         // For each map B, if B.Start or B.End falls in a map A, then split Map A
         // Then for each map A,  increase it, by it's map B offset.
@@ -94,8 +110,8 @@ public class Day05
              *        10.20
              *     1..9  10.10
              */
-            foreach (var toSplitSource in mapA.Where(r => map.SourceStart > r.SourceStart
-                                                       && map.SourceStart <= r.SourceEnd).ToList())
+            foreach (var toSplitSource in mapA.Where(r => map.SourceStart > r.SourceStart 
+                                                          && map.SourceStart <= r.SourceEnd).ToArray())
             {
                 mapA.Add(new Map
                 {
@@ -103,6 +119,7 @@ public class Day05
                     SourceEnd = map.SourceStart - 1
                 });
                 toSplitSource.SourceStart = map.SourceStart;
+                break;
             }
 
             /*
@@ -111,7 +128,7 @@ public class Day05
              *     10..11  12.20
              */
             foreach (var toSplitTarget in mapA.Where(r => map.SourceEnd > r.SourceStart
-                                                       && map.SourceEnd < r.SourceEnd).ToList())
+                                                          && map.SourceEnd < r.SourceEnd).ToArray())
             {
                 mapA.Add(new Map
                 {
@@ -119,34 +136,21 @@ public class Day05
                     SourceEnd = map.SourceEnd
                 });
                 toSplitTarget.SourceStart = map.SourceEnd + 1;
+                break;
             }
         }
 
         // If range from A falls instead range from B,  then increase A by offset
-        var result = new List<Map>();
         foreach (var map in mapA)
         {
-            var target = mapB.SingleOrDefault(b => b.SourceStart <= map.SourceStart
-                                                   && b.SourceEnd >= map.SourceEnd);
-            if (target is not null)
+            foreach (var target in mapB.Where(b => b.SourceStart <= map.SourceStart
+                                                   && b.SourceEnd >= map.SourceEnd))
             {
-                result.Add(new Map
-                {
-                    SourceStart = map.SourceStart+ target.Offset,
-                    SourceEnd = map.SourceEnd+ target.Offset
-                });
-            }
-            else
-            {
-                result.Add(new Map
-                {
-                    SourceStart = map.SourceStart,
-                    SourceEnd = map.SourceEnd
-                });
+                map.SourceStart += target.Offset;
+                map.SourceEnd += target.Offset;
+                break;
             }
         }
-
-        return result;
     }
 
     private List<Map> LoadMap(ref LRParserSpan lrParser, string mapName)
@@ -188,7 +192,7 @@ public class Day05
         return value;
     }
 
-    private record Map
+    private class Map
     {
         public long SourceStart { get; set; }
         public long Offset { get; set; }
