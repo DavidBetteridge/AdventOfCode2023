@@ -5,7 +5,7 @@ public class Day06
     public int Part1(string filename)
     {
         var text = File.ReadAllText(filename);
-        var lrParser = new LRParser(text);
+        var lrParser = new LRParserSpan(text);
 
         var times = new List<int>();
         lrParser.Eat("Time:");
@@ -51,7 +51,7 @@ public class Day06
     public int Part2(string filename)
     {
         var text = File.ReadAllText(filename);
-        var lrParser = new LRParser(text);
+        var lrParser = new LRParserSpan(text);
 
         var timeStr = "";
         lrParser.Eat("Time:");
@@ -61,7 +61,7 @@ public class Day06
             timeStr += lrParser.EatWord();
             lrParser.EatWhitespace();
         } while (!lrParser.TryEat('\n'));
-        var time = ulong.Parse(timeStr);
+        var time = long.Parse(timeStr);
         
         var distanceStr = "";
         lrParser.Eat("Distance:");
@@ -71,18 +71,12 @@ public class Day06
             distanceStr += lrParser.EatWord();
             lrParser.EatWhitespace();
         } while (!lrParser.EOF);
-        var distance = ulong.Parse(distanceStr);
+        var distance = long.Parse(distanceStr);
 
- 
-        var numberOfWins = 0;
-        for (ulong delay = 0; delay < time; delay++)
-        {
-            if (delay * (time - delay) > distance)
-                numberOfWins++;
-            else if (numberOfWins > 0)
-                break;
-        }
+        var inner = Math.Sqrt((time * time) - (4 * distance));
+        var firstWin= ((-time + (int) Math.Ceiling(inner)) / -2);
+        var secondWin= ((-time - (int) Math.Floor(inner)) / -2);
         
-        return numberOfWins;
+        return (int)(secondWin - firstWin);
     }
 }

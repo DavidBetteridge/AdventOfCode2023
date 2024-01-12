@@ -7,30 +7,16 @@ public class Day06BenchmarkTests
 {
     
     [Benchmark]
-    public void Part1()
+    public void Day06_Part1()
     {
         var solver = new Day06();
         solver.Part1("/Users/davidbetteridge/Personal/AdventOfCode2023/AOC_2023/AOC_2023.Tests/Day06/input.txt");
     }
     
     [Benchmark]
-    public void Part2()
+    public void Day06_Part2()
     {
         var solver = new Day06();
-        solver.Part2("/Users/davidbetteridge/Personal/AdventOfCode2023/AOC_2023/AOC_2023.Tests/Day06/input.txt");
-    }
-    
-    [Benchmark]
-    public void Part1Span()
-    {
-        var solver = new Day06Span();
-        solver.Part1("/Users/davidbetteridge/Personal/AdventOfCode2023/AOC_2023/AOC_2023.Tests/Day06/input.txt");
-    }
-    
-    [Benchmark]
-    public void Part2Span()
-    {
-        var solver = new Day06Span();
         solver.Part2("/Users/davidbetteridge/Personal/AdventOfCode2023/AOC_2023/AOC_2023.Tests/Day06/input.txt");
     }
 }
