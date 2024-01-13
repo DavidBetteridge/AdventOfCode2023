@@ -1,6 +1,3 @@
-using Microsoft.Diagnostics.Tracing.Parsers.Kernel;
-using Microsoft.Diagnostics.Tracing.Parsers.MicrosoftAntimalwareEngine;
-
 namespace AOC_2023.Solutions;
 
 public class Day10
@@ -12,76 +9,83 @@ public class Day10
     
     public int Part1(string filename)
     {
-        var grid = File.ReadAllLines(filename);
+        var grid = File.ReadAllText(filename);
 
-        // Find the start position (row,column)
-        var startLocation = (RowNumber: 0, ColumnNumber: 0);
-        for (var rowNumber = 0; rowNumber < grid.Length; rowNumber++)
-        {
-            var columnNumber = grid[rowNumber].IndexOf('S');
-            if (columnNumber != -1)
-            {
-                startLocation = (rowNumber, columnNumber);
-                break;
-            }
-        }
+        var width = grid.IndexOf('\n')+1;
+        var start = grid.IndexOf('S');
+        
+        var north = -width;
+        var south = width;
+        var east = 1;
+        var west = -1;
 
-        var direction = FindPossibleStartDirection(startLocation, grid);
-        var currentLocation = startLocation;
-        if (direction == NORTH)
-            currentLocation = (currentLocation.RowNumber - 1, currentLocation.ColumnNumber);
-        else if (direction == SOUTH)
-            currentLocation = (currentLocation.RowNumber + 1, currentLocation.ColumnNumber);
-        else if (direction == EAST)
-            currentLocation = (currentLocation.RowNumber, currentLocation.ColumnNumber + 1);
-        else if (direction == WEST)
-            currentLocation = (currentLocation.RowNumber, currentLocation.ColumnNumber - 1);
+        var direction = FindStartDirection(start);
+        var currentLoc = start+direction;
+
         var length = 1;
 
-        while (currentLocation != startLocation)
+        do
         {
-            var current = grid[currentLocation.RowNumber][currentLocation.ColumnNumber];
-            if (current is '|' && direction == NORTH)
-                direction = NORTH;
-            else if (current is '|' && direction == SOUTH)
-                direction = SOUTH;
-            else if (current is '-' && direction == EAST)
-                direction = EAST;
-            else if (current is '-' && direction == WEST)
-                direction = WEST;
-            else if (current is 'F' && direction == NORTH)
-                direction = EAST;
-            else if (current is 'F' && direction == WEST)
-                direction = SOUTH;
-            else if (current is '7' && direction == NORTH)
-                direction = WEST;
-            else if (current is '7' && direction == EAST)
-                direction = SOUTH;
-            else if (current is 'L' && direction == WEST)
-                direction = NORTH;
-            else if (current is 'L' && direction == SOUTH)
-                direction = EAST;
-            else if (current is 'J' && direction == EAST)
-                direction = NORTH;
-            else if (current is 'J' && direction == SOUTH)
-                direction = WEST;
+            direction = grid[currentLoc] switch
+            {
+                'F' when direction == north => east,
+                'F' when direction == west => south,
+                '7' when direction == north => west,
+                '7' when direction == east => south,
+                'L' when direction == west => north,
+                'L' when direction == south => east,
+                'J' when direction == east => north,
+                'J' when direction == south => west,
+                _ => direction
+            };
 
-            if (direction == NORTH)
-                currentLocation = (currentLocation.RowNumber - 1, currentLocation.ColumnNumber);
-            else if (direction == SOUTH)
-                currentLocation = (currentLocation.RowNumber + 1, currentLocation.ColumnNumber);
-            else if (direction == EAST)
-                currentLocation = (currentLocation.RowNumber, currentLocation.ColumnNumber + 1);
-            else if (direction == WEST)
-                currentLocation = (currentLocation.RowNumber, currentLocation.ColumnNumber - 1);
+            currentLoc += direction;
             length += 1;
-        }
+        } while (currentLoc != start);
 
         return length / 2;
+        
+        int FindStartDirection(int currentLocation)
+        {
+            if (currentLocation > width)
+            {
+                var above = grid[currentLocation - width];
+                if (above is '|' or '7' or 'F')
+                    return north;
+            }
+
+            if (currentLocation % width > 0)
+            {
+                var left = grid[currentLocation-1];
+                if (left is '-' or 'F' or 'L')
+                    return west;
+            }
+
+            if (currentLocation + width < grid.Length)
+            {
+                var below = grid[currentLocation + width];
+                if (below is '|' or 'L' or 'J')
+                    return south;
+            }
+
+            if ((currentLocation + 1) % width < width)
+            {
+                var right = grid[currentLocation+1];
+                if (right is '-' or '7' or 'J')
+                    return east;
+            }
+
+            throw new Exception($"{currentLocation}");
+        }
     }
 
     public int Part2(string filename)
     {
+         const int NORTH = 1;
+         const int SOUTH = 2;
+         const int EAST = 3;
+         const int WEST = 4;
+        
         var grid = File.ReadAllLines(filename);
 
         // Find the start position (row,column)
@@ -112,39 +116,33 @@ public class Day10
         while (currentLocation != startLocation)
         {
             var current = grid[currentLocation.RowNumber][currentLocation.ColumnNumber];
-            if (current is '|' && direction == NORTH)
-                direction = NORTH;
-            else if (current is '|' && direction == SOUTH)
-                direction = SOUTH;
-            else if (current is '-' && direction == EAST)
-                direction = EAST;
-            else if (current is '-' && direction == WEST)
-                direction = WEST;
-            else if (current is 'F' && direction == NORTH)
-                direction = EAST;
-            else if (current is 'F' && direction == WEST)
-                direction = SOUTH;
-            else if (current is '7' && direction == NORTH)
-                direction = WEST;
-            else if (current is '7' && direction == EAST)
-                direction = SOUTH;
-            else if (current is 'L' && direction == WEST)
-                direction = NORTH;
-            else if (current is 'L' && direction == SOUTH)
-                direction = EAST;
-            else if (current is 'J' && direction == EAST)
-                direction = NORTH;
-            else if (current is 'J' && direction == SOUTH)
-                direction = WEST;
+            direction = current switch
+            {
+                '|' when direction == NORTH => NORTH,
+                '|' when direction == SOUTH => SOUTH,
+                '-' when direction == EAST => EAST,
+                '-' when direction == WEST => WEST,
+                'F' when direction == NORTH => EAST,
+                'F' when direction == WEST => SOUTH,
+                '7' when direction == NORTH => WEST,
+                '7' when direction == EAST => SOUTH,
+                'L' when direction == WEST => NORTH,
+                'L' when direction == SOUTH => EAST,
+                'J' when direction == EAST => NORTH,
+                'J' when direction == SOUTH => WEST,
+                _ => direction
+            };
+
             path.Add(currentLocation, direction);
-            if (direction == NORTH)
-                currentLocation = (currentLocation.RowNumber - 1, currentLocation.ColumnNumber);
-            else if (direction == SOUTH)
-                currentLocation = (currentLocation.RowNumber + 1, currentLocation.ColumnNumber);
-            else if (direction == EAST)
-                currentLocation = (currentLocation.RowNumber, currentLocation.ColumnNumber + 1);
-            else if (direction == WEST)
-                currentLocation = (currentLocation.RowNumber, currentLocation.ColumnNumber - 1);
+
+            currentLocation = direction switch
+            {
+                NORTH => (currentLocation.RowNumber - 1, currentLocation.ColumnNumber),
+                SOUTH => (currentLocation.RowNumber + 1, currentLocation.ColumnNumber),
+                EAST => (currentLocation.RowNumber, currentLocation.ColumnNumber + 1),
+                WEST => (currentLocation.RowNumber, currentLocation.ColumnNumber - 1),
+                _ => currentLocation
+            };
         }
 
         var result = 0;
