@@ -36,8 +36,10 @@ public class Day13
                 cols[c] = n;
             }
             
-            rowResult += FindMirrorLine(rows); 
-            colResult += FindMirrorLine(cols);          
+            var r = FindMirrorLine(rows);
+            rowResult += r;
+            if (r == 0)
+                colResult += FindMirrorLine(cols);        
            
         }
 
