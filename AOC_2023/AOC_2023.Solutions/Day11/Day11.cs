@@ -11,9 +11,8 @@ public class Day11
         var numberOfRows = lines.Length;
         var numberOfColumns = lines[0].Length;
         var columnOffsets = new int[numberOfColumns];
-        var rowOffsets = new int[numberOfColumns];
 
-        var movedDown = 0;
+        long movedDown = 0;
         for (var rowNumber = 0; rowNumber < numberOfRows; rowNumber++)
         {
             var populated = false;
@@ -21,16 +20,15 @@ public class Day11
             {
                 if (lines[rowNumber][columnNumber] == '#')
                 {
-                    galaxiesRow.Add((uint)rowNumber);
+                    galaxiesRow.Add((uint)(rowNumber + movedDown));
                     galaxiesColumn.Add((uint)columnNumber);
                     populated = true;
                     columnOffsets[columnNumber] = 1;
                 }
             }
 
-            rowOffsets[rowNumber] = movedDown;
             if (!populated)
-                movedDown += 1;
+                movedDown += increase;
         }
         
         var columnOffset = 0;
@@ -47,16 +45,15 @@ public class Day11
             }
         }
 
-        var gs = galaxiesRow.Count;
-        var rows = galaxiesRow.Select(r => r + (increase*rowOffsets[r])).ToArray();
+        var gs = galaxiesColumn.Count;
         var cols = galaxiesColumn.Select(r => r + (increase*columnOffsets[r])).Order().ToArray();
         
         var result = 0L;
 
         for (var i = 0; i < gs-1; i++)
         {
-            result += rows[i+1] * (i+1);
-            result += -rows[i] * (gs-i-1);
+            result += galaxiesRow[i+1] * (i+1);
+            result += -galaxiesRow[i] * (gs-i-1);
             result += cols[i+1] * (i+1);
             result += -cols[i] * (gs-i-1);
         }
