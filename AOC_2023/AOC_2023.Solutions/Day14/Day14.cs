@@ -57,37 +57,11 @@ public class Day14
             }
         }
 
-        var cache = new Dictionary<string, int>();
+        var cache = new Dictionary<ulong, int>();
         var scores = new List<int>();
+        ulong cacheKey = 0;
         for (var cycle = 0; cycle < 1000000000; cycle++)
         {
-            var cacheKey = "";
-            for (var rowNumber = 0; rowNumber < numberOfRows; rowNumber++)
-            {
-                var count = 0;
-                for (var columnNumber = 0; columnNumber < numberOfColumns; columnNumber++)
-                {
-                    if (ball[columnNumber*numberOfRows+rowNumber])
-                        count++;
-                }
-            
-                cacheKey += count;
-            }
-            
-            for (var columnNumber = 0; columnNumber < numberOfColumns; columnNumber++)
-            
-            {
-                var count = 0;
-                for (var rowNumber = 0; rowNumber < numberOfRows; rowNumber++)    
-                {
-                    if (ball[columnNumber*numberOfRows+rowNumber])
-                        count++;
-                }
-            
-                cacheKey += count;
-            }
-
-            
             if (cache.TryGetValue(cacheKey, out var warmup))
             {
                 var cycleSize = cycle - warmup;
@@ -186,24 +160,33 @@ public class Day14
                 }
             }
 
-            scores.Add(Score(numberOfRows, numberOfColumns, ball));
+            var totals = Score(numberOfRows, numberOfColumns, ball);
+            scores.Add(totals.Item1);
+            
+            // combine into a single long
+            cacheKey = ((ulong)totals.Item1 << 32) | (ulong)totals.Item2;
+            
         }
 
         return -1;
     }
 
-    private static int Score(int numberOfRows, int numberOfColumns, bool[] grid)
+    private static (int,int) Score(int numberOfRows, int numberOfColumns, bool[] grid)
     {
-        var total = 0;
+        var northTotal = 0;
+        var westTotal = 0;
         for (var rowNumber = 0; rowNumber < numberOfRows; rowNumber++)
         {
             for (var columnNumber = 0; columnNumber < numberOfColumns; columnNumber++)
             {
-                if (grid[columnNumber*numberOfRows+rowNumber])
-                    total += numberOfRows - rowNumber;
+                if (grid[columnNumber * numberOfRows + rowNumber])
+                {
+                    northTotal += numberOfRows - rowNumber;
+                    westTotal += numberOfColumns - columnNumber;
+                }
             }
         }
 
-        return total;
+        return (northTotal, westTotal);
     }
 }
