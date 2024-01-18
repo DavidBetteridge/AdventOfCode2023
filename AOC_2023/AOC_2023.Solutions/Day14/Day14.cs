@@ -58,7 +58,6 @@ public class Day14
         }
 
         var cache = new Dictionary<ulong, int>();
-        var scores = new List<int>();
         ulong cacheKey = 0;
         for (var cycle = 0; cycle < 1000000000; cycle++)
         {
@@ -66,7 +65,7 @@ public class Day14
             {
                 var cycleSize = cycle - warmup;
                 var ind = warmup + ((1000000000 - warmup) % cycleSize) - 1;
-                return scores[ind];
+                return (int)(cache.ElementAt(ind+1).Key >> 32);
             }
             else
                 cache.Add(cacheKey, cycle); //Cycles applied.
@@ -159,19 +158,13 @@ public class Day14
                     }
                 }
             }
-
-            var totals = Score(numberOfRows, numberOfColumns, ball);
-            scores.Add(totals.Item1);
-            
-            // combine into a single long
-            cacheKey = ((ulong)totals.Item1 << 32) | (ulong)totals.Item2;
-            
+            cacheKey = Score(numberOfRows, numberOfColumns, ball);
         }
 
         return -1;
     }
 
-    private static (int,int) Score(int numberOfRows, int numberOfColumns, bool[] grid)
+    private static ulong Score(int numberOfRows, int numberOfColumns, bool[] grid)
     {
         var northTotal = 0;
         var westTotal = 0;
@@ -187,6 +180,6 @@ public class Day14
             }
         }
 
-        return (northTotal, westTotal);
+        return ((ulong)northTotal << 32) | (ulong)westTotal;
     }
 }
