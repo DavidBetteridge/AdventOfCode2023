@@ -1,10 +1,12 @@
+using System.Collections;
+
 namespace AOC_2023.Solutions;
 
 public class Day14
 {
-    const int Fixed = 2;
-    const int Gap = 1;
-    const int Ball = 0;
+    // const int Fixed = 2;
+    // const int Gap = 1;
+    // const int Ball = 0;
 
     public long Part1(string filename)
     {
@@ -40,16 +42,18 @@ public class Day14
         var lines = File.ReadAllLines(filename);
         var numberOfColumns = lines[0].Length;
         var numberOfRows = lines.Length;
-        var grid = new int[numberOfRows, numberOfColumns];
+        
+        var ball = new bool[numberOfRows*numberOfColumns];
+        var perm = new bool[numberOfRows*numberOfColumns];
 
         for (var rowNumber = 0; rowNumber < numberOfRows; rowNumber++)
         {
             for (var columnNumber = 0; columnNumber < numberOfColumns; columnNumber++)
             {
                 if (lines[rowNumber][columnNumber] == '#')
-                    grid[columnNumber, rowNumber] = Fixed;
-                else if (lines[rowNumber][columnNumber] == '.')
-                    grid[columnNumber, rowNumber] = Gap;
+                    perm[columnNumber*numberOfRows+rowNumber] = true;
+                else if (lines[rowNumber][columnNumber] == 'O')
+                    ball[columnNumber*numberOfRows+rowNumber] = true;
             }
         }
 
@@ -58,39 +62,31 @@ public class Day14
         for (var cycle = 0; cycle < 1000000000; cycle++)
         {
             var cacheKey = "";
-            // for (var rowNumber = 0; rowNumber < numberOfRows; rowNumber++)
-            // {
-            //     for (var columnNumber = 0; columnNumber < numberOfColumns; columnNumber++)
-            //     {
-            //         cacheKey += grid[columnNumber, rowNumber];
-            //     }
-            // }
-
             for (var rowNumber = 0; rowNumber < numberOfRows; rowNumber++)
             {
                 var count = 0;
                 for (var columnNumber = 0; columnNumber < numberOfColumns; columnNumber++)
                 {
-                    if (grid[columnNumber, rowNumber] == Ball)
+                    if (ball[columnNumber*numberOfRows+rowNumber])
                         count++;
                 }
-
+            
                 cacheKey += count;
             }
-
+            
             for (var columnNumber = 0; columnNumber < numberOfColumns; columnNumber++)
             
             {
                 var count = 0;
                 for (var rowNumber = 0; rowNumber < numberOfRows; rowNumber++)    
                 {
-                    if (grid[columnNumber, rowNumber] == Ball)
+                    if (ball[columnNumber*numberOfRows+rowNumber])
                         count++;
                 }
-
+            
                 cacheKey += count;
             }
-            
+
             
             if (cache.TryGetValue(cacheKey, out var warmup))
             {
@@ -111,13 +107,13 @@ public class Day14
                 while (t + 1 < numberOfRows)
                 {
                     t++;
-                    if (grid[columnNumber, t] == Ball)
+                    if (ball[columnNumber*numberOfRows+t])
                     {
-                        grid[columnNumber, t] = Gap;
-                        grid[columnNumber, b] = Ball;
+                        ball[columnNumber*numberOfRows+t] = false;
+                        ball[columnNumber*numberOfRows+b] = true;
                         b++;
                     }
-                    else if (grid[columnNumber, t] == Fixed)
+                    else if (perm[columnNumber*numberOfRows+t])
                     {
                         b = t + 1;
                     }
@@ -133,13 +129,13 @@ public class Day14
                 while (t + 1 < numberOfColumns)
                 {
                     t++;
-                    if (grid[t, rowNumber] == Ball)
+                    if (ball[t*numberOfRows+rowNumber])
                     {
-                        grid[t, rowNumber] = Gap;
-                        grid[b, rowNumber] = Ball;
+                        ball[t*numberOfRows+rowNumber] = false;
+                        ball[b*numberOfRows+rowNumber] = true;
                         b++;
                     }
-                    else if (grid[t, rowNumber] == Fixed)
+                    else if (perm[t*numberOfRows+rowNumber])
                     {
                         b = t + 1;
                     }
@@ -155,13 +151,13 @@ public class Day14
                 while (t > 0)
                 {
                     t--;
-                    if (grid[columnNumber, t] == Ball)
+                    if (ball[columnNumber*numberOfRows+t])
                     {
-                        grid[columnNumber, t] = Gap;
-                        grid[columnNumber, b] = Ball;
+                        ball[columnNumber*numberOfRows+t] = false;
+                        ball[columnNumber*numberOfRows+b] = true;
                         b--;
                     }
-                    else if (grid[columnNumber, t] == Fixed)
+                    else if (perm[columnNumber*numberOfRows+t])
                     {
                         b = t - 1;
                     }
@@ -177,33 +173,33 @@ public class Day14
                 while (t > 0)
                 {
                     t--;
-                    if (grid[t, rowNumber] == Ball)
+                    if (ball[t*numberOfRows+rowNumber])
                     {
-                        grid[t, rowNumber] = Gap;
-                        grid[b, rowNumber] = Ball;
+                        ball[t*numberOfRows+rowNumber] = false;
+                        ball[b*numberOfRows+rowNumber] = true;
                         b--;
                     }
-                    else if (grid[t, rowNumber] == Fixed)
+                    else if (perm[t*numberOfRows+rowNumber])
                     {
                         b = t - 1;
                     }
                 }
             }
 
-            scores.Add(Score(numberOfRows, numberOfColumns, grid));
+            scores.Add(Score(numberOfRows, numberOfColumns, ball));
         }
 
         return -1;
     }
 
-    private static int Score(int numberOfRows, int numberOfColumns, int[,] grid)
+    private static int Score(int numberOfRows, int numberOfColumns, bool[] grid)
     {
         var total = 0;
         for (var rowNumber = 0; rowNumber < numberOfRows; rowNumber++)
         {
             for (var columnNumber = 0; columnNumber < numberOfColumns; columnNumber++)
             {
-                if (grid[columnNumber, rowNumber] == Ball)
+                if (grid[columnNumber*numberOfRows+rowNumber])
                     total += numberOfRows - rowNumber;
             }
         }

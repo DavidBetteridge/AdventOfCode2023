@@ -29,4 +29,5 @@ public class Day14Tests
         var solver = new Day14();
         Assert.Equal(93742, solver.Part2("Day14/input.txt"));
     }
+    
 }
