@@ -7,7 +7,7 @@ public class Day15
         var input = File.ReadAllText(filename);
         var result = 0;
 
-        var parser = new LRParserSpan(input);
+        var parser = new LRParser(input);
         do
         {
             var currentValue = 0;
@@ -33,7 +33,7 @@ public class Day15
     {
         var input = File.ReadAllText(filename);
 
-        var parser = new LRParserSpan(input);
+        var parser = new LRParser(input);
         var boxes = new List<Lens>[256];
 
         for (var i = 0;i < 256; i++)
@@ -55,9 +55,6 @@ public class Day15
                     label += c;
                 }
             } while (char.IsLetter(c));
-
-            
-            
             
             if (c == '=')
             {
