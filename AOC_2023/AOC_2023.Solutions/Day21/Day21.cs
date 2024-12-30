@@ -96,9 +96,6 @@ public class Day21
 
     public long Part2(string filename, int requiredSteps)
     {
-        // The garden is 11 x 100
-        // 11 is also a factor of 26501365   (2409215)
-
         // Load Graph
         var graph = File.ReadAllLines(filename);
         var rows = graph.Length;

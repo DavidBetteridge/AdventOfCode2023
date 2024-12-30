@@ -17,13 +17,14 @@ public class Day21Tests
     }
 
     [Theory]
-    [InlineData(6, 16)]
-    [InlineData(10, 50)]
-   // [InlineData(50, 1594)]
-    public void Test_Part2_Sample(int steps, int expected)
+    // [InlineData(64, 3605, "Day21/input.txt")]
+    // [InlineData(6, 16, "Day21/sample.txt")]
+    // [InlineData(10, 50, "Day21/sample.txt")]
+    [InlineData(1000, 668697, "Day21/sample.txt")]
+    public void Test_Part2_Sample(int steps, int expected, string filename)
     {
-        var solver = new Day21();
-        Assert.Equal(expected, solver.Part2("Day21/sample.txt", steps));
+        var solver = new Day21_Part2();
+        Assert.Equal(expected, solver.Part2(filename, steps));
     }
     
     // In exactly 6 steps, he can still reach 16 garden plots.
