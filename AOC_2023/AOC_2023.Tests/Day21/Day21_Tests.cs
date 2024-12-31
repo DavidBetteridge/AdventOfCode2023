@@ -19,8 +19,9 @@ public class Day21Tests
     [Theory]
     // [InlineData(64, 3605, "Day21/input.txt")]
     // [InlineData(6, 16, "Day21/sample.txt")]
-    // [InlineData(10, 50, "Day21/sample.txt")]
+    //[InlineData(10, 50, "Day21/sample.txt")]
     [InlineData(1000, 668697, "Day21/sample.txt")]
+    [InlineData(5000, 16733044, "Day21/sample.txt")]
     public void Test_Part2_Sample(int steps, int expected, string filename)
     {
         var solver = new Day21_Part2();
@@ -38,7 +39,7 @@ public class Day21Tests
     // [Fact]
     // public void Test_Part2()
     // {
-    //     var solver = new Day21();
-    //     Assert.Equal(130090458884662, solver.Part2("Day21/input.txt"));
+    //     var solver = new Day21_Part2();
+    //     Assert.Equal(0, solver.Part2("Day21/input.txt", 26501365));
     // }
 }

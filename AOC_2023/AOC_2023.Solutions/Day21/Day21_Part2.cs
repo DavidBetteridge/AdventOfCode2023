@@ -21,136 +21,142 @@ public class Day21_Part2
 
         // How many squares are reachable in odd and even steps
         var distancesStartingInTheMiddle = CountPossibleSquares(requiredSteps, rows, cols, startCol, startRow, graph);
-        var odds = distancesStartingInTheMiddle.Count(d => d % 2 == 1);
-        var evens = distancesStartingInTheMiddle.Count(d => d % 2 == 0);
+        
         
         // How many sub-grids can be reached
-        var gridsUp = requiredSteps / rows;
-        var gridsLeft = requiredSteps / cols;
-        
-        // How many steps are needed to reach a corner of the grid
-        var topLeft = distancesStartingInTheMiddle[0];
-        var topRight = distancesStartingInTheMiddle[cols-1];
-        var lowerLeft = distancesStartingInTheMiddle[cols * (rows-1)];
-        var lowerRight = distancesStartingInTheMiddle[(cols * rows) -1];
-        
-        // What are the distances from each corner
-        var distancesTopLeft= CountPossibleSquares(requiredSteps, rows, cols, 0, 0, graph);
-        var distancesTopRight= CountPossibleSquares(requiredSteps, rows, cols, cols-1, 0, graph);
-        var distancesLowerLeft= CountPossibleSquares(requiredSteps, rows, cols, 0, rows-1, graph);
-        var distancesLowerRight= CountPossibleSquares(requiredSteps, rows, cols, cols-1, rows-1, graph);
-
-        // How many steps are required to reach the whole of the grid
-        var maxTopLeft = distancesTopLeft.Where(d => d % 2 == 0).Max();
-        var maxTopRight = distancesTopRight.Where(d => d % 2 == 0).Max();
-        var maxLowerLeft = distancesLowerLeft.Where(d => d % 2 == 0).Max();
-        var maxLowerRight = distancesLowerRight.Where(d => d % 2 == 0).Max();
-        
-        // How many steps are reachable
-        var plotsTopLeft = distancesTopLeft.Count(d => d % 2 == 0);
-        var plotsTopRight = distancesTopRight.Count(d => d % 2 == 0);
-        var plotsLowerLeft = distancesLowerLeft.Count(d => d % 2 == 0);
-        var plotsLowerRight = distancesLowerRight.Count(d => d % 2 == 0);
-        
+        var gridsUp = (requiredSteps / rows);
+        var gridsLeft = (requiredSteps / cols);
         var totalReached = 0L;
-        for (var x = -gridsLeft; x <= gridsLeft; x++)
+        if (gridsUp > 1)
         {
-            if (x != 0)
-            {
-                for (var y = -gridsUp; y <= gridsUp; y++)
-                {
-                    if (y != 0)
-                    {
-                        // The distance walked to reach the corner of the grid
-                        var distanceWalked = Math.Abs(x * cols) + Math.Abs(y * rows);
-                        if (x < 0 && y < 0)
-                            distanceWalked += topLeft + 2;
-                        if (x < 0 && y > 0)
-                            distanceWalked += lowerLeft + 2;
-                        if (x > 0 && y < 0)
-                            distanceWalked += topRight + 2;
-                        if (x > 0 && y > 0)
-                            distanceWalked += lowerRight + 2;
-                        
-                        var stepsToCompleteGrid = 0;
-                        if (x < 0 && y < 0)
-                            stepsToCompleteGrid += maxTopLeft;
-                        if (x < 0 && y > 0)
-                            stepsToCompleteGrid += maxLowerLeft;
-                        if (x > 0 && y < 0)
-                            stepsToCompleteGrid += maxTopRight;
-                        if (x > 0 && y > 0)
-                            stepsToCompleteGrid += maxLowerRight;
+            // How many steps are needed to reach a corner of the grid
+            var topLeft = distancesStartingInTheMiddle[0];
+            var topRight = distancesStartingInTheMiddle[cols - 1];
+            var lowerLeft = distancesStartingInTheMiddle[cols * (rows - 1)];
+            var lowerRight = distancesStartingInTheMiddle[(cols * rows) - 1];
 
-                        var remainingSteps = requiredSteps - distanceWalked;
-                        if ( remainingSteps >= stepsToCompleteGrid)
+            // What are the distances from each corner
+            var distancesTopLeft = CountPossibleSquares(requiredSteps, rows, cols, 0, 0, graph);
+            var distancesTopRight = CountPossibleSquares(requiredSteps, rows, cols, cols - 1, 0, graph);
+            var distancesLowerLeft = CountPossibleSquares(requiredSteps, rows, cols, 0, rows - 1, graph);
+            var distancesLowerRight = CountPossibleSquares(requiredSteps, rows, cols, cols - 1, rows - 1, graph);
+
+            //Display("distancesStartingInTheMiddle", distancesStartingInTheMiddle, rows, cols, graph);
+            // Display("distancesTopLeft", distancesTopLeft, rows, cols, graph);
+            // Display("distancesTopRight", distancesTopRight, rows, cols, graph);
+            // Display("distancesLowerLeft", distancesLowerLeft, rows, cols, graph);
+            // Display("distancesLowerRight", distancesLowerRight, rows, cols, graph);
+
+            var toggle = 0;
+            for (var x = -gridsLeft; x <= gridsLeft; x++)
+            {
+                if (x != 0)
+                {
+                    for (var y = -gridsUp; y <= gridsUp; y++)
+                    {
+                        if (y != 0)
                         {
+                            // The distance walked to reach the corner of the grid
+                            var distanceWalked = ((Math.Abs(x) - 1) * cols) + ((Math.Abs(y) - 1) * rows);
                             if (x < 0 && y < 0)
-                                totalReached += plotsTopLeft;
+                                distanceWalked += topLeft + 2;
                             if (x < 0 && y > 0)
-                                totalReached += plotsLowerLeft;
+                                distanceWalked += lowerLeft + 2;
                             if (x > 0 && y < 0)
-                                totalReached += plotsTopRight;
+                                distanceWalked += topRight + 2;
                             if (x > 0 && y > 0)
-                                totalReached += plotsLowerRight;
-                        }
-                        else if (remainingSteps > 0 )
-                        {
+                                distanceWalked += lowerRight + 2;
+
+                            toggle = distanceWalked % 2 == 0 ? 0 : 1;
+
+                            var remainingSteps = requiredSteps - distanceWalked;
                             if (x < 0 && y < 0)
-                                totalReached += distancesTopLeft.Count(d => d % 2 == 0 && d <= remainingSteps);
+                                totalReached += distancesLowerRight.Count(d => d % 2 == toggle && d <= remainingSteps);
                             if (x < 0 && y > 0)
-                                totalReached += distancesLowerLeft.Count(d => d % 2 == 0 && d <= remainingSteps);
+                                totalReached += distancesTopRight.Count(d => d % 2 == toggle && d <= remainingSteps);
                             if (x > 0 && y < 0)
-                                totalReached += distancesTopRight.Count(d => d % 2 == 0 && d <= remainingSteps);
+                                totalReached += distancesLowerLeft.Count(d => d % 2 == toggle && d <= remainingSteps);
                             if (x > 0 && y > 0)
-                                totalReached += distancesLowerRight.Count(d => d % 2 == 0 && d <= remainingSteps);
+                                totalReached += distancesTopLeft.Count(d => d % 2 == toggle && d <= remainingSteps);
                         }
                     }
                 }
             }
-        }
-        
-        // Walk to the right.  Starting at the shorter of TopRight and LowerRight
-        var rSteps = requiredSteps - (topRight + 1);
-        var toggle = 0;
-        while (rSteps > 0)
-        {
-            totalReached += distancesTopLeft.Count(d => d % 2 == toggle && d <= rSteps);
-            toggle = 1;
-            rSteps -= cols;
-        }
-        
-        // Walk to the left.
-        rSteps = requiredSteps - (topLeft + 1);
-        toggle = 0;
-        while (rSteps > 0)
-        {
-            totalReached += distancesTopRight.Count(d => d % 2 == toggle && d <= rSteps);
-            toggle = 1;
-            rSteps -= cols;
-        }
-        
-        // Walk up.
-        rSteps = requiredSteps - (topLeft + 1);
-        toggle = 0;
-        while (rSteps > 0)
-        {
-            totalReached += distancesLowerLeft.Count(d => d % 2 == toggle && d <= rSteps);
-            toggle = 1;
-            rSteps -= rows;
+
+            // 639879
+
+
+            // Walk to the right.  Starting at the shorter of TopRight and LowerRight
+            var walked = topRight; // Take the shortest path to the top-right corner.
+            walked += 1; // Then take a single step to the right, so be in the top-left corner
+            while (walked < requiredSteps)
+            {
+                toggle = walked % 2 == 0 ? 0 : 1;
+                totalReached += distancesTopLeft.Count(d => d % 2 == toggle && d <= (requiredSteps - walked));
+                walked += cols;
+            }
+
+            // Walk to the left.  Starting at the shorter of TopLeft and LowerLeft
+            walked = topLeft; // Take the shortest path to the top-left corner.
+            walked += 1; // Then take a single step to the left, so be in the top-right corner
+            while (walked < requiredSteps)
+            {
+                toggle = walked % 2 == 0 ? 0 : 1;
+                totalReached += distancesTopRight.Count(d => (d % 2) == toggle && (d <= (requiredSteps - walked)));
+                walked += cols;
+            }
+
+            // Walk up.  Starting at the shorter of TopLeft and TopRight
+            walked = topLeft; // Take the shortest path to the top-left corner.
+            walked += 1; // Then take a single step up, so be in the lower-left corner
+            while (walked < requiredSteps)
+            {
+                toggle = walked % 2 == 0 ? 0 : 1;
+                totalReached += distancesLowerLeft.Count(d => d % 2 == toggle && d <= (requiredSteps - walked));
+                walked += rows;
+            }
+
+            // Walk down.  Starting at the shorter of LowerLeft and LowerRight
+            walked = lowerLeft; // Take the shortest path to the top-left corner.
+            walked += 1; // Then take a single step down, so be in the top-left corner
+            while (walked < requiredSteps)
+            {
+                toggle = walked % 2 == 0 ? 0 : 1;
+                totalReached += distancesTopLeft.Count(d => d % 2 == toggle && d <= (requiredSteps - walked));
+                walked += rows;
+            }
         }
 
-        // Walk down.
-        rSteps = requiredSteps - (lowerLeft + 1);
-        toggle = 0;
-        while (rSteps > 0)
-        {
-            totalReached += distancesTopLeft.Count(d => d % 2 == toggle && d <= rSteps);
-            toggle = 1;
-            rSteps -= rows;
-        }
+        // Include the middle square
+        totalReached += distancesStartingInTheMiddle.Count(d => d % 2 == 0 && d != int.MaxValue);
         
         return totalReached;
+    }
+
+    private void Display(string caption, int[] map, int rows, int cols, string[] graph)
+    {
+        Console.WriteLine(); 
+        Console.WriteLine(); 
+        Console.WriteLine(caption); 
+        for (var row = 0; row < rows; row++)
+        {
+            for (var col = 0; col < cols; col++)
+            {
+                if (graph[row][col] == '#')
+                    Console.Write("-");
+                else if (map[row * cols + col] == int.MaxValue)
+                    Console.Write("?");
+                else
+                {
+                    if (map[row * cols + col] <= 15)
+                        Console.Write(map[row * cols + col].ToString("x"));
+                    else
+                        Console.Write((char)(map[row * cols + col] - 10 + 'a'));
+                }
+                    
+            }
+            Console.WriteLine();            
+        }
     }
 
 
