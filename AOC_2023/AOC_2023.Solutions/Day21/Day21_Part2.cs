@@ -83,46 +83,121 @@ public class Day21_Part2
                 }
             }
 
-            // 639879
+            // 668670
+            // 16733016
 
-
-            // Walk to the right.  Starting at the shorter of TopRight and LowerRight
+            // Walk to the right.  Starting at the TopRight / LowerRight
             var walked = topRight; // Take the shortest path to the top-right corner.
             walked += 1; // Then take a single step to the right, so be in the top-left corner
             while (walked < requiredSteps)
             {
                 toggle = walked % 2 == 0 ? 0 : 1;
-                totalReached += distancesTopLeft.Count(d => d % 2 == toggle && d <= (requiredSteps - walked));
+                var remaining = requiredSteps - walked;
+                if (remaining >= cols)
+                    totalReached += distancesTopLeft.Count(d => d % 2 == toggle && d <= remaining);
+                else
+                {
+                    var fromAbove = distancesTopLeft.Select((d,i) => new {d,i})
+                        .Where(d => d.d % 2 == toggle && d.d <= remaining)
+                        .Select(d=> d.i)
+                        .ToHashSet();
+                    
+                    var fromBelow = distancesLowerLeft.Select((d,i) => new {d,i})
+                        .Where(d => d.d % 2 == toggle && d.d <= ((remaining + topRight) - lowerRight))
+                        .Select(d=> d.i)
+                        .ToHashSet();
+                    
+                    totalReached += fromAbove.Concat(fromBelow).ToHashSet().Count();
+                }
+                
                 walked += cols;
             }
 
-            // Walk to the left.  Starting at the shorter of TopLeft and LowerLeft
+            // Walk to the left.  Starting at TopLeft / LowerLeft
             walked = topLeft; // Take the shortest path to the top-left corner.
             walked += 1; // Then take a single step to the left, so be in the top-right corner
             while (walked < requiredSteps)
             {
                 toggle = walked % 2 == 0 ? 0 : 1;
-                totalReached += distancesTopRight.Count(d => (d % 2) == toggle && (d <= (requiredSteps - walked)));
+                //totalReached += distancesTopRight.Count(d => (d % 2) == toggle && (d <= (requiredSteps - walked)));
+                
+                var remaining = requiredSteps - walked;
+                if (remaining >= cols)
+                    totalReached += distancesTopRight.Count(d => d % 2 == toggle && d <= remaining);
+                else
+                {
+                    var fromAbove = distancesTopRight.Select((d,i) => new {d,i})
+                        .Where(d => d.d % 2 == toggle && d.d <= remaining)
+                        .Select(d=> d.i)
+                        .ToHashSet();
+                    
+                    var fromBelow = distancesLowerRight.Select((d,i) => new {d,i})
+                        .Where(d => d.d % 2 == toggle && d.d <= remaining + topLeft - lowerLeft )
+                        .Select(d=> d.i)
+                        .ToHashSet();
+                    
+                    totalReached += fromAbove.Concat(fromBelow).ToHashSet().Count();
+                }
+                
                 walked += cols;
             }
 
-            // Walk up.  Starting at the shorter of TopLeft and TopRight
+            // Walk up.  Starting TopLeft / TopRight
             walked = topLeft; // Take the shortest path to the top-left corner.
             walked += 1; // Then take a single step up, so be in the lower-left corner
             while (walked < requiredSteps)
             {
                 toggle = walked % 2 == 0 ? 0 : 1;
-                totalReached += distancesLowerLeft.Count(d => d % 2 == toggle && d <= (requiredSteps - walked));
+                //totalReached += distancesLowerLeft.Count(d => d % 2 == toggle && d <= (requiredSteps - walked));
+                
+                var remaining = requiredSteps - walked;
+                if (remaining >= cols)
+                    totalReached += distancesLowerLeft.Count(d => d % 2 == toggle && d <= remaining);
+                else
+                {
+                    var fromAbove = distancesLowerLeft.Select((d,i) => new {d,i})
+                        .Where(d => d.d % 2 == toggle && d.d <= remaining)
+                        .Select(d=> d.i)
+                        .ToHashSet();
+                    
+                    var fromBelow = distancesLowerRight.Select((d,i) => new {d,i})
+                        .Where(d => d.d % 2 == toggle && d.d <= ((remaining + topLeft) - topRight))
+                        .Select(d=> d.i)
+                        .ToHashSet();
+                    
+                    totalReached += fromAbove.Concat(fromBelow).ToHashSet().Count();
+                }
+                
                 walked += rows;
             }
 
-            // Walk down.  Starting at the shorter of LowerLeft and LowerRight
+            // Walk down.  Starting at tLowerLeft / LowerRight
             walked = lowerLeft; // Take the shortest path to the top-left corner.
             walked += 1; // Then take a single step down, so be in the top-left corner
             while (walked < requiredSteps)
             {
                 toggle = walked % 2 == 0 ? 0 : 1;
-                totalReached += distancesTopLeft.Count(d => d % 2 == toggle && d <= (requiredSteps - walked));
+               // totalReached += distancesTopLeft.Count(d => d % 2 == toggle && d <= (requiredSteps - walked));
+               
+               var remaining = requiredSteps - walked;
+               if (remaining >= cols)
+                   totalReached += distancesTopLeft.Count(d => d % 2 == toggle && d <= remaining);
+               else
+               {
+                   var fromAbove = distancesTopLeft.Select((d,i) => new {d,i})
+                       .Where(d => d.d % 2 == toggle && d.d <= remaining)
+                       .Select(d=> d.i)
+                       .ToHashSet();
+                    
+                   var fromBelow = distancesTopRight.Select((d,i) => new {d,i})
+                       .Where(d => d.d % 2 == toggle && d.d <= ((remaining + lowerLeft) - lowerRight))
+                       .Select(d=> d.i)
+                       .ToHashSet();
+                    
+                   totalReached += fromAbove.Concat(fromBelow).ToHashSet().Count();
+               }
+               
+               
                 walked += rows;
             }
         }
