@@ -83,8 +83,6 @@ public class Day21_Part2
                 }
             }
 
-            // 668670
-            // 16733016
 
             // Walk to the right.  Starting at the TopRight / LowerRight
             var walked = topRight; // Take the shortest path to the top-right corner.
@@ -93,7 +91,7 @@ public class Day21_Part2
             {
                 toggle = walked % 2 == 0 ? 0 : 1;
                 var remaining = requiredSteps - walked;
-                if (remaining >= cols)
+                if (remaining >= cols*2)
                     totalReached += distancesTopLeft.Count(d => d % 2 == toggle && d <= remaining);
                 else
                 {
@@ -119,10 +117,8 @@ public class Day21_Part2
             while (walked < requiredSteps)
             {
                 toggle = walked % 2 == 0 ? 0 : 1;
-                //totalReached += distancesTopRight.Count(d => (d % 2) == toggle && (d <= (requiredSteps - walked)));
-                
                 var remaining = requiredSteps - walked;
-                if (remaining >= cols)
+                if (remaining >= cols*2)
                     totalReached += distancesTopRight.Count(d => d % 2 == toggle && d <= remaining);
                 else
                 {
@@ -148,10 +144,9 @@ public class Day21_Part2
             while (walked < requiredSteps)
             {
                 toggle = walked % 2 == 0 ? 0 : 1;
-                //totalReached += distancesLowerLeft.Count(d => d % 2 == toggle && d <= (requiredSteps - walked));
-                
+             
                 var remaining = requiredSteps - walked;
-                if (remaining >= cols)
+                if (remaining >= cols*2)
                     totalReached += distancesLowerLeft.Count(d => d % 2 == toggle && d <= remaining);
                 else
                 {
@@ -177,10 +172,9 @@ public class Day21_Part2
             while (walked < requiredSteps)
             {
                 toggle = walked % 2 == 0 ? 0 : 1;
-               // totalReached += distancesTopLeft.Count(d => d % 2 == toggle && d <= (requiredSteps - walked));
                
                var remaining = requiredSteps - walked;
-               if (remaining >= cols)
+               if (remaining >= cols*2)
                    totalReached += distancesTopLeft.Count(d => d % 2 == toggle && d <= remaining);
                else
                {
