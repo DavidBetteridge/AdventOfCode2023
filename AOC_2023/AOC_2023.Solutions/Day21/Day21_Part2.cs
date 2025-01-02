@@ -48,6 +48,83 @@ public class Day21_Part2
             // Display("distancesLowerRight", distancesLowerRight, rows, cols, graph);
 
             var toggle = 0;
+            
+            
+            /////////////////////
+            // Top Left Grid
+            /////////////////////
+            var available = requiredSteps - topLeft - 2;
+            var grids = available / (cols + rows);
+            var evens = (grids * grids) / 2;
+            var odds = (grids * grids) - evens;
+
+            totalReached += odds * distancesLowerRight.Count(d => d % 2 == 1 && d != int.MaxValue);
+            totalReached += evens * distancesLowerRight.Count(d => d % 2 == 0 && d != int.MaxValue);
+            
+            for (var x = -gridsLeft; x < -grids; x++)
+            {
+                for (var y = (-grids); y < 0; y++)
+                {
+                    var distanceWalked = ((Math.Abs(x) - 1) * cols) + ((Math.Abs(y) - 1) * rows);
+                    distanceWalked += topLeft + 2;
+                    toggle = distanceWalked % 2 == 0 ? 0 : 1;
+                    var remainingSteps = requiredSteps - distanceWalked;
+                    totalReached += distancesLowerRight.Count(d => d % 2 == toggle && d <= remainingSteps);
+                }
+            }
+
+            for (var x = (-gridsLeft); x < 0; x++)
+            {
+                for (var y = -gridsUp; y < -grids; y++)
+                {
+                    var distanceWalked = ((Math.Abs(x) - 1) * cols) + ((Math.Abs(y) - 1) * rows);
+                    distanceWalked += topLeft + 2;
+                    toggle = distanceWalked % 2 == 0 ? 0 : 1;
+                    var remainingSteps = requiredSteps - distanceWalked;
+                    totalReached += distancesLowerRight.Count(d => d % 2 == toggle && d <= remainingSteps);
+                }
+            }
+            
+            
+            /////////////////////
+            // Top Right Grid
+            /////////////////////
+            available = requiredSteps - topRight - 2;
+            grids = available / (cols + rows);
+            evens = (grids * grids) / 2;
+            odds = (grids * grids) - evens;
+
+            totalReached += odds * distancesLowerLeft.Count(d => d % 2 == 1 && d != int.MaxValue);
+            totalReached += evens * distancesLowerLeft.Count(d => d % 2 == 0 && d != int.MaxValue);
+            
+            //Right edge
+            for (var x = grids+1; x <= gridsLeft; x++)
+            {
+                for (var y = -grids; y < 0; y++)
+                {
+                    var distanceWalked = ((x - 1) * cols) + ((Math.Abs(y) - 1) * rows);
+                    distanceWalked += topRight + 2;
+                    toggle = distanceWalked % 2 == 0 ? 0 : 1;
+                    var remainingSteps = requiredSteps - distanceWalked;
+                    totalReached += distancesLowerLeft.Count(d => d % 2 == toggle && d <= remainingSteps);
+                }
+            }
+
+            //Across the top
+            for (var x = 1; x <= gridsLeft; x++)
+            {
+                for (var y = -gridsUp; y < -grids; y++)
+                {
+                    var distanceWalked = ((x - 1) * cols) + ((Math.Abs(y) - 1) * rows);
+                    distanceWalked += topRight + 2;
+                    toggle = distanceWalked % 2 == 0 ? 0 : 1;
+                    var remainingSteps = requiredSteps - distanceWalked;
+                    totalReached += distancesLowerLeft.Count(d => d % 2 == toggle && d <= remainingSteps);
+                }
+            }
+            
+            
+
             for (var x = -gridsLeft; x <= gridsLeft; x++)
             {
                 if (x != 0)
@@ -70,12 +147,12 @@ public class Day21_Part2
                             toggle = distanceWalked % 2 == 0 ? 0 : 1;
 
                             var remainingSteps = requiredSteps - distanceWalked;
-                            if (x < 0 && y < 0)
-                                totalReached += distancesLowerRight.Count(d => d % 2 == toggle && d <= remainingSteps);
+                            // if (x < 0 && y < 0)
+                            //     totalReached += distancesLowerRight.Count(d => d % 2 == toggle && d <= remainingSteps);
                             if (x < 0 && y > 0)
                                 totalReached += distancesTopRight.Count(d => d % 2 == toggle && d <= remainingSteps);
-                            if (x > 0 && y < 0)
-                                totalReached += distancesLowerLeft.Count(d => d % 2 == toggle && d <= remainingSteps);
+                            // if (x > 0 && y < 0)
+                            //     totalReached += distancesLowerLeft.Count(d => d % 2 == toggle && d <= remainingSteps);
                             if (x > 0 && y > 0)
                                 totalReached += distancesTopLeft.Count(d => d % 2 == toggle && d <= remainingSteps);
                         }
