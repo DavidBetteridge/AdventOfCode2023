@@ -141,7 +141,7 @@ public class Day21_Part2
                 for (var y =1; y <= grids; y++)
                 {
                     var distanceWalked = ((Math.Abs(x) - 1) * cols) + ((Math.Abs(y) - 1) * rows);
-                    distanceWalked += topLeft + 2;
+                    distanceWalked += lowerLeft + 2;
                     toggle = distanceWalked % 2 == 0 ? 0 : 1;
                     var remainingSteps = requiredSteps - distanceWalked;
                     totalReached += distancesTopRight.Count(d => d % 2 == toggle && d <= remainingSteps);
@@ -154,46 +154,48 @@ public class Day21_Part2
                 for (var y = grids+1; y <= gridsUp; y++)
                 {
                     var distanceWalked = ((Math.Abs(x) - 1) * cols) + ((Math.Abs(y) - 1) * rows);
-                    distanceWalked += topLeft + 2;
+                    distanceWalked += lowerLeft + 2;
                     toggle = distanceWalked % 2 == 0 ? 0 : 1;
                     var remainingSteps = requiredSteps - distanceWalked;
                     totalReached += distancesTopRight.Count(d => d % 2 == toggle && d <= remainingSteps);
                 }
             }
             
+            
+            /////////////////////
+            // Lower Right Grid
+            /////////////////////
+            available = requiredSteps - lowerRight - 2;
+            grids = available / (cols + rows);
+            evens = (grids * grids) / 2;
+            odds = (grids * grids) - evens;
 
-            for (var x = -gridsLeft; x <= gridsLeft; x++)
+            totalReached += odds * distancesTopLeft.Count(d => d % 2 == 1 && d != int.MaxValue);
+            totalReached += evens * distancesTopLeft.Count(d => d % 2 == 0 && d != int.MaxValue);
+            
+            // Down the right
+            for (var x = grids+1; x <= gridsLeft; x++)
             {
-                if (x != 0)
+                for (var y =1; y <= grids; y++)
                 {
-                    for (var y = -gridsUp; y <= gridsUp; y++)
-                    {
-                        if (y != 0)
-                        {
-                            // The distance walked to reach the corner of the grid
-                            var distanceWalked = ((Math.Abs(x) - 1) * cols) + ((Math.Abs(y) - 1) * rows);
-                            if (x < 0 && y < 0)
-                                distanceWalked += topLeft + 2;
-                            if (x < 0 && y > 0)
-                                distanceWalked += lowerLeft + 2;
-                            if (x > 0 && y < 0)
-                                distanceWalked += topRight + 2;
-                            if (x > 0 && y > 0)
-                                distanceWalked += lowerRight + 2;
+                    var distanceWalked = ((Math.Abs(x) - 1) * cols) + ((Math.Abs(y) - 1) * rows);
+                    distanceWalked += lowerRight + 2;
+                    toggle = distanceWalked % 2 == 0 ? 0 : 1;
+                    var remainingSteps = requiredSteps - distanceWalked;
+                    totalReached += distancesTopLeft.Count(d => d % 2 == toggle && d <= remainingSteps);
+                }
+            }
 
-                            toggle = distanceWalked % 2 == 0 ? 0 : 1;
-
-                            var remainingSteps = requiredSteps - distanceWalked;
-                            // if (x < 0 && y < 0)
-                            //     totalReached += distancesLowerRight.Count(d => d % 2 == toggle && d <= remainingSteps);
-                            // if (x < 0 && y > 0)
-                            //     totalReached += distancesTopRight.Count(d => d % 2 == toggle && d <= remainingSteps);
-                            // if (x > 0 && y < 0)
-                            //     totalReached += distancesLowerLeft.Count(d => d % 2 == toggle && d <= remainingSteps);
-                            if (x > 0 && y > 0)
-                                totalReached += distancesTopLeft.Count(d => d % 2 == toggle && d <= remainingSteps);
-                        }
-                    }
+            // Across the bottom
+            for (var x = 1; x <= gridsLeft; x++)
+            {
+                for (var y = grids+1; y <= gridsUp; y++)
+                {
+                    var distanceWalked = ((Math.Abs(x) - 1) * cols) + ((Math.Abs(y) - 1) * rows);
+                    distanceWalked += lowerRight + 2;
+                    toggle = distanceWalked % 2 == 0 ? 0 : 1;
+                    var remainingSteps = requiredSteps - distanceWalked;
+                    totalReached += distancesTopLeft.Count(d => d % 2 == toggle && d <= remainingSteps);
                 }
             }
 
