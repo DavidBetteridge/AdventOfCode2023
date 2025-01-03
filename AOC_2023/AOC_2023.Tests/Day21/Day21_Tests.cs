@@ -22,7 +22,7 @@ public class Day21Tests
     //[InlineData(10, 50, "Day21/sample.txt")]
     [InlineData(1000, 668697, "Day21/sample.txt")]
     [InlineData(5000, 16733044, "Day21/sample.txt")]
-    public void Test_Part2_Sample(int steps, int expected, string filename)
+    public void Test_Part2_Sample(int steps, ulong expected, string filename)
     {
         var solver = new Day21_Part2();
         Assert.Equal(expected, solver.Part2(filename, steps));
@@ -36,10 +36,10 @@ public class Day21Tests
     //     In exactly 1000 steps, he can reach 668697 garden plots.
     //     In exactly 5000 steps, he can reach 16733044 garden plots.
     
-    // [Fact]
-    // public void Test_Part2()
-    // {
-    //     var solver = new Day21_Part2();
-    //     Assert.Equal(0, solver.Part2("Day21/input.txt", 26501365));
-    // }
+    [Fact]
+    public void Test_Part2()
+    {
+        var solver = new Day21_Part2();
+        Assert.Equal((ulong)0, solver.Part2("Day21/input.txt", 26501365));
+    }
 }

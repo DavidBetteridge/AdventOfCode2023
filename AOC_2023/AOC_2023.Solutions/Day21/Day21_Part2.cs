@@ -45,6 +45,9 @@ public class Day21_Part2
         var graph = File.ReadAllLines(filename);
         var rows = graph.Length;
         var cols = graph[0].Length;
+        if (rows != cols)
+            throw new Exception("Not square");
+        var size = rows;
         
         // Find the start position
         var startRow = 0;
@@ -88,42 +91,46 @@ public class Day21_Part2
 
             var toggle = 0;
             
-            
-            /////////////////////
-            // Top Left Grid
-            /////////////////////
-            var available = requiredSteps - topLeft - 2;
-            long grids = available / (cols + rows);
-            var evens = (grids * grids) / 2;
-            var odds = (grids * grids) - evens;
+             // totalReached = Count(requiredSteps, distancesLowerRight, topLeft, size);
+             // totalReached += Count(requiredSteps, distancesLowerLeft, topRight, size);
+             // totalReached += Count(requiredSteps, distancesTopRight, lowerLeft, size);
+           //   totalReached += Count(requiredSteps, distancesTopLeft, lowerRight, size);
 
-            totalReached += (ulong)(odds * distancesLowerRight.Count(d => d % 2 == 1 && d != int.MaxValue));
-            totalReached += (ulong)(evens * distancesLowerRight.Count(d => d % 2 == 0 && d != int.MaxValue));
-            
-            for (var x = -gridsLeft; x < -grids; x++)
-            {
-                for (var y = (-grids); y < 0; y++)
-                {
-                    var distanceWalked = ((Math.Abs(x) - 1) * cols) + ((Math.Abs(y) - 1) * rows);
-                    distanceWalked += topLeft + 2;
-                    toggle = distanceWalked % 2 == 0 ? 0 : 1;
-                    var remainingSteps = requiredSteps - distanceWalked;
-                    totalReached += cache.Lookup(DistanceCache.LowerRight, toggle, remainingSteps);
-                }
-            }
+         
+         /////////////////////
+         // Top Left Grid
+         /////////////////////
+         var available = requiredSteps - topLeft - 2;
+         long grids = available / (cols + rows);
+         var evens = (grids * grids) / 2;
+         var odds = (grids * grids) - evens;
 
-            for (var x = (-gridsLeft); x < 0; x++)
-            {
-                for (var y = -gridsUp; y < -grids; y++)
-                {
-                    var distanceWalked = ((Math.Abs(x) - 1) * cols) + ((Math.Abs(y) - 1) * rows);
-                    distanceWalked += topLeft + 2;
-                    toggle = distanceWalked % 2 == 0 ? 0 : 1;
-                    var remainingSteps = requiredSteps - distanceWalked;
-                    totalReached += cache.Lookup(DistanceCache.LowerRight, toggle, remainingSteps);
-                }
-            }
+         totalReached += (ulong)(odds * distancesLowerRight.Count(d => d % 2 == 1 && d != int.MaxValue));
+         totalReached += (ulong)(evens * distancesLowerRight.Count(d => d % 2 == 0 && d != int.MaxValue));
             
+         for (var x = -gridsLeft; x < -grids; x++)
+         {
+             for (var y = (-grids); y < 0; y++)
+             {
+                 var distanceWalked = ((Math.Abs(x) - 1) * cols) + ((Math.Abs(y) - 1) * rows);
+                 distanceWalked += topLeft + 2;
+                 toggle = distanceWalked % 2 == 0 ? 0 : 1;
+                 var remainingSteps = requiredSteps - distanceWalked;
+                 totalReached += cache.Lookup(DistanceCache.LowerRight, toggle, remainingSteps);
+             }
+         }
+
+         for (var x = (-gridsLeft); x < 0; x++)
+         {
+             for (var y = -gridsUp; y < -grids; y++)
+             {
+                 var distanceWalked = ((Math.Abs(x) - 1) * cols) + ((Math.Abs(y) - 1) * rows);
+                 distanceWalked += topLeft + 2;
+                 toggle = distanceWalked % 2 == 0 ? 0 : 1;
+                 var remainingSteps = requiredSteps - distanceWalked;
+                 totalReached += cache.Lookup(DistanceCache.LowerRight, toggle, remainingSteps);
+             }
+         }
             
             /////////////////////
             // Top Right Grid
@@ -132,7 +139,7 @@ public class Day21_Part2
             grids = available / (cols + rows);
             evens = (grids * grids) / 2;
             odds = (grids * grids) - evens;
-
+            
             totalReached += (ulong)(odds * distancesLowerLeft.Count(d => d % 2 == 1 && d != int.MaxValue));
             totalReached += (ulong)(evens * distancesLowerLeft.Count(d => d % 2 == 0 && d != int.MaxValue));
             
@@ -148,7 +155,7 @@ public class Day21_Part2
                     totalReached += cache.Lookup(DistanceCache.LowerLeft, toggle, remainingSteps);
                 }
             }
-
+            
             //Across the top
             for (var x = 1; x <= gridsLeft; x++)
             {
@@ -170,7 +177,7 @@ public class Day21_Part2
             grids = available / (cols + rows);
             evens = (grids * grids) / 2;
             odds = (grids * grids) - evens;
-
+            
             totalReached += (ulong)(odds * distancesTopRight.Count(d => d % 2 == 1 && d != int.MaxValue));
             totalReached += (ulong)(evens * distancesTopRight.Count(d => d % 2 == 0 && d != int.MaxValue));
             
@@ -186,7 +193,7 @@ public class Day21_Part2
                     totalReached += cache.Lookup(DistanceCache.TopRight, toggle, remainingSteps);
                 }
             }
-
+            
             // Across the bottom
             for (var x = (-gridsLeft); x < 0; x++)
             {
@@ -208,7 +215,7 @@ public class Day21_Part2
             grids = available / (cols + rows);
             evens = (grids * grids) / 2;
             odds = (grids * grids) - evens;
-
+            
             totalReached += (ulong)(odds * distancesTopLeft.Count(d => d % 2 == 1 && d != int.MaxValue));
             totalReached += (ulong)(evens * distancesTopLeft.Count(d => d % 2 == 0 && d != int.MaxValue));
             
@@ -224,7 +231,7 @@ public class Day21_Part2
                     totalReached += cache.Lookup(DistanceCache.TopLeft, toggle, remainingSteps);
                 }
             }
-
+            
             // Across the bottom
             for (var x = 1; x <= gridsLeft; x++)
             {
@@ -354,6 +361,47 @@ public class Day21_Part2
         // Include the middle square
         totalReached += (ulong)distancesStartingInTheMiddle.Count(d => d % 2 == 0 && d != int.MaxValue);
         
+        return totalReached;
+    }
+
+    private static ulong Count(int requiredSteps, int[] distances, int distanceToStart, int size)
+    {
+        var fullOddGrid = (ulong)distances.Count(d => d % 2 == 1 && d != int.MaxValue);
+        var fullEvenGrid = (ulong)distances.Count(d => d % 2 == 0 && d != int.MaxValue);
+        var offset = 1;
+        var walked1 = distanceToStart + 2;
+
+        var fullGrids = ((requiredSteps - walked1) / size);
+        var partial = (requiredSteps - walked1) - (fullGrids * size);
+        var toggle = partial % 2;
+        var partialCount = (ulong)distances.Count(d => d % 2 == toggle && d <= partial);
+
+        var evens = (fullGrids >> 1) + offset;
+        var odds = fullGrids - evens;
+        var evenIncrease = ((ulong)evens * fullEvenGrid);
+        var oddIncrease = ((ulong)odds * fullOddGrid);
+        ulong totalReached = 0L;
+        while (walked1 <= requiredSteps)
+        {
+            totalReached += partialCount;
+            totalReached += evenIncrease;
+            totalReached += oddIncrease;
+
+            if (offset == 0)
+            {
+                offset = 1;
+                if ( oddIncrease > 0)
+                    oddIncrease -= fullOddGrid;
+            }
+            else
+            {
+                offset = 0;
+                if ( evenIncrease > 0)
+                    evenIncrease -= fullEvenGrid;                
+            }
+            walked1 += size;
+        }
+
         return totalReached;
     }
 
