@@ -4,41 +4,6 @@ namespace AOC_2023.Solutions;
 
 public class Day21_Part2
 {
-    private class DistanceCache
-    {
-        public static int TopLeft = 0;
-        public static int TopRight = 1;
-        public static int LowerLeft = 2;
-        public static int LowerRight = 3;
-
-        private readonly int[][] _maps = new int[4][];
-
-        private readonly Dictionary<(int, long), int>[] _cache = new Dictionary<(int, long), int>[4];
-        
-        public DistanceCache(int[] distancesTopLeft, int[] distancesTopRight, int[] distancesLowerLeft, int[] distancesLowerRight)
-        {
-            _maps[TopLeft] = distancesTopLeft;
-            _maps[TopRight] = distancesTopRight;
-            _maps[LowerLeft] = distancesLowerLeft;
-            _maps[LowerRight] = distancesLowerRight;
-            _cache[TopLeft] = new Dictionary<(int, long), int>();
-            _cache[TopRight] = new Dictionary<(int, long), int>();
-            _cache[LowerLeft] = new Dictionary<(int, long), int>();
-            _cache[LowerRight] = new Dictionary<(int, long), int>();
-        }
-
-        public ulong Lookup(int cacheName, int toggle, long remainingSteps)
-        {
-            if (!_cache[cacheName].TryGetValue((toggle, remainingSteps), out var cnt))
-            {
-                cnt = _maps[cacheName].Count(d => d % 2 == toggle && d <= remainingSteps);
-                _cache[cacheName].Add((toggle, remainingSteps), cnt);
-            }
-
-            return (ulong)cnt;
-        }
-    }
-    
     public ulong Part2(string filename, int requiredSteps)
     {
         // Load Graph
@@ -75,24 +40,43 @@ public class Day21_Part2
             var lowerLeft = distancesStartingInTheMiddle[cols * (rows - 1)];
             var lowerRight = distancesStartingInTheMiddle[(cols * rows) - 1];
 
+            // How many steps are needed to reach the middle of each side of the grid
+            var topMiddle = distancesStartingInTheMiddle[rows/2];
+            var leftMiddle = distancesStartingInTheMiddle[cols * (rows/2)];
+            var lowerMiddle = distancesStartingInTheMiddle[cols * (rows - 1) + (cols/2)];
+            var rightMiddle = distancesStartingInTheMiddle[ (cols * (rows / 2)) + cols];
+            
             // What are the distances from each corner
             var distancesTopLeft = CountPossibleSquares(requiredSteps, rows, cols, 0, 0, graph);
             var distancesTopRight = CountPossibleSquares(requiredSteps, rows, cols, cols - 1, 0, graph);
             var distancesLowerLeft = CountPossibleSquares(requiredSteps, rows, cols, 0, rows - 1, graph);
             var distancesLowerRight = CountPossibleSquares(requiredSteps, rows, cols, cols - 1, rows - 1, graph);
 
-            var cache = new DistanceCache(distancesTopLeft, distancesTopRight, distancesLowerLeft, distancesLowerRight);
+            // What are the distances from the middle of each side
+            var distancesTopMiddle = CountPossibleSquares(requiredSteps, rows, cols, cols/2, 0, graph);
+            var distancesRightMiddle = CountPossibleSquares(requiredSteps, rows, cols, cols - 1, rows/2, graph);
+            var distancesLowerMiddle = CountPossibleSquares(requiredSteps, rows, cols, cols/2, rows - 1, graph);
+            var distancesLeftMiddle = CountPossibleSquares(requiredSteps, rows, cols, 0, rows/2, graph);
             
             //Display("distancesStartingInTheMiddle", distancesStartingInTheMiddle, rows, cols, graph);
             //Display("distancesTopLeft", distancesTopLeft, rows, cols, graph);
-            // Display("distancesTopRight", distancesTopRight, rows, cols, graph);
-            // Display("distancesLowerLeft", distancesLowerLeft, rows, cols, graph);
-           //  Display("distancesLowerRight", distancesLowerRight, rows, cols, graph);
+            //Display("distancesTopRight", distancesTopRight, rows, cols, graph);
+            //Display("distancesLowerLeft", distancesLowerLeft, rows, cols, graph);
+            //Display("distancesLowerRight", distancesLowerRight, rows, cols, graph);
+            // Display("distancesTopMiddle", distancesTopMiddle, rows, cols, graph);
+            // Display("distancesRightMiddle", distancesRightMiddle, rows, cols, graph);
+            // Display("distancesLowerMiddle", distancesLowerMiddle, rows, cols, graph);
+            // Display("distancesLeftMiddle", distancesLeftMiddle, rows, cols, graph);
 
             var toggle = 0;
             
             var fullOddGrid = distancesStartingInTheMiddle.Count(d => d % 2 == 1 && d != int.MaxValue);
             var fullEvenGrid = distancesStartingInTheMiddle.Count(d => d % 2 == 0 && d != int.MaxValue);
+            
+            // Find the distance to the top middle and then take an 
+            // var distancesTopMiddle = CountPossibleSquares(requiredSteps, rows, cols, cols/2, 0, graph);
+            
+            
             totalReached = Count(requiredSteps, distancesLowerRight, topLeft, size, fullEvenGrid, fullOddGrid);
             totalReached += Count(requiredSteps, distancesLowerLeft, topRight, size, fullEvenGrid, fullOddGrid);
             totalReached += Count(requiredSteps, distancesTopRight, lowerLeft, size, fullEvenGrid, fullOddGrid);
@@ -219,11 +203,6 @@ public class Day21_Part2
 
     private static ulong Count(int requiredSteps, int[] distances, int distanceToStart, int size, int fullEvenGrid, int fullOddGrid)
     {
-        
-        var maxOdd = distances.MaxBy(d => d % 2 == 1 && d != int.MaxValue);
-        var maxEven = distances.MaxBy(d => d % 2 == 0 && d != int.MaxValue);
-        var numberOfPartials = maxOdd / size;
-        
         var walked = distanceToStart + 2;
 
         var remaining = requiredSteps - walked;
@@ -239,11 +218,11 @@ public class Day21_Part2
         partialCount = (ulong)distances.Count(d => d % 2 == toggle && d <= partial);
         totalReached += partialCount * (ulong)(2+fullGrids);
         
-        var e = 0;
+        var e = 0L;
         for (var i = 1; i <= fullGrids; i += 2)
             e += i;
         
-        var o = 0;
+        var o = 0L;
         for (var i = 0; i <= fullGrids; i += 2)
             o += i;
         
