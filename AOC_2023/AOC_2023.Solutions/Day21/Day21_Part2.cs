@@ -84,168 +84,21 @@ public class Day21_Part2
             var cache = new DistanceCache(distancesTopLeft, distancesTopRight, distancesLowerLeft, distancesLowerRight);
             
             //Display("distancesStartingInTheMiddle", distancesStartingInTheMiddle, rows, cols, graph);
-            // Display("distancesTopLeft", distancesTopLeft, rows, cols, graph);
+            //Display("distancesTopLeft", distancesTopLeft, rows, cols, graph);
             // Display("distancesTopRight", distancesTopRight, rows, cols, graph);
             // Display("distancesLowerLeft", distancesLowerLeft, rows, cols, graph);
-            // Display("distancesLowerRight", distancesLowerRight, rows, cols, graph);
+           //  Display("distancesLowerRight", distancesLowerRight, rows, cols, graph);
 
             var toggle = 0;
             
-             // totalReached = Count(requiredSteps, distancesLowerRight, topLeft, size);
-             // totalReached += Count(requiredSteps, distancesLowerLeft, topRight, size);
-             // totalReached += Count(requiredSteps, distancesTopRight, lowerLeft, size);
-           //   totalReached += Count(requiredSteps, distancesTopLeft, lowerRight, size);
+            var fullOddGrid = distancesStartingInTheMiddle.Count(d => d % 2 == 1 && d != int.MaxValue);
+            var fullEvenGrid = distancesStartingInTheMiddle.Count(d => d % 2 == 0 && d != int.MaxValue);
+            totalReached = Count(requiredSteps, distancesLowerRight, topLeft, size, fullEvenGrid, fullOddGrid);
+            totalReached += Count(requiredSteps, distancesLowerLeft, topRight, size, fullEvenGrid, fullOddGrid);
+            totalReached += Count(requiredSteps, distancesTopRight, lowerLeft, size, fullEvenGrid, fullOddGrid);
+            totalReached += Count(requiredSteps, distancesTopLeft, lowerRight, size, fullEvenGrid, fullOddGrid);
 
          
-         /////////////////////
-         // Top Left Grid
-         /////////////////////
-         var available = requiredSteps - topLeft - 2;
-         long grids = available / (cols + rows);
-         var evens = (grids * grids) / 2;
-         var odds = (grids * grids) - evens;
-
-         totalReached += (ulong)(odds * distancesLowerRight.Count(d => d % 2 == 1 && d != int.MaxValue));
-         totalReached += (ulong)(evens * distancesLowerRight.Count(d => d % 2 == 0 && d != int.MaxValue));
-            
-         for (var x = -gridsLeft; x < -grids; x++)
-         {
-             for (var y = (-grids); y < 0; y++)
-             {
-                 var distanceWalked = ((Math.Abs(x) - 1) * cols) + ((Math.Abs(y) - 1) * rows);
-                 distanceWalked += topLeft + 2;
-                 toggle = distanceWalked % 2 == 0 ? 0 : 1;
-                 var remainingSteps = requiredSteps - distanceWalked;
-                 totalReached += cache.Lookup(DistanceCache.LowerRight, toggle, remainingSteps);
-             }
-         }
-
-         for (var x = (-gridsLeft); x < 0; x++)
-         {
-             for (var y = -gridsUp; y < -grids; y++)
-             {
-                 var distanceWalked = ((Math.Abs(x) - 1) * cols) + ((Math.Abs(y) - 1) * rows);
-                 distanceWalked += topLeft + 2;
-                 toggle = distanceWalked % 2 == 0 ? 0 : 1;
-                 var remainingSteps = requiredSteps - distanceWalked;
-                 totalReached += cache.Lookup(DistanceCache.LowerRight, toggle, remainingSteps);
-             }
-         }
-            
-            /////////////////////
-            // Top Right Grid
-            /////////////////////
-            available = requiredSteps - topRight - 2;
-            grids = available / (cols + rows);
-            evens = (grids * grids) / 2;
-            odds = (grids * grids) - evens;
-            
-            totalReached += (ulong)(odds * distancesLowerLeft.Count(d => d % 2 == 1 && d != int.MaxValue));
-            totalReached += (ulong)(evens * distancesLowerLeft.Count(d => d % 2 == 0 && d != int.MaxValue));
-            
-            //Right edge
-            for (var x = grids+1; x <= gridsLeft; x++)
-            {
-                for (var y = -grids; y < 0; y++)
-                {
-                    var distanceWalked = ((x - 1) * cols) + ((Math.Abs(y) - 1) * rows);
-                    distanceWalked += topRight + 2;
-                    toggle = distanceWalked % 2 == 0 ? 0 : 1;
-                    var remainingSteps = requiredSteps - distanceWalked;
-                    totalReached += cache.Lookup(DistanceCache.LowerLeft, toggle, remainingSteps);
-                }
-            }
-            
-            //Across the top
-            for (var x = 1; x <= gridsLeft; x++)
-            {
-                for (var y = -gridsUp; y < -grids; y++)
-                {
-                    var distanceWalked = ((x - 1) * cols) + ((Math.Abs(y) - 1) * rows);
-                    distanceWalked += topRight + 2;
-                    toggle = distanceWalked % 2 == 0 ? 0 : 1;
-                    var remainingSteps = requiredSteps - distanceWalked;
-                    totalReached += cache.Lookup(DistanceCache.LowerLeft, toggle, remainingSteps);
-                }
-            }
-            
-            
-            /////////////////////
-            // Lower Left Grid
-            /////////////////////
-            available = requiredSteps - lowerLeft - 2;
-            grids = available / (cols + rows);
-            evens = (grids * grids) / 2;
-            odds = (grids * grids) - evens;
-            
-            totalReached += (ulong)(odds * distancesTopRight.Count(d => d % 2 == 1 && d != int.MaxValue));
-            totalReached += (ulong)(evens * distancesTopRight.Count(d => d % 2 == 0 && d != int.MaxValue));
-            
-            // Down the left
-            for (var x = -gridsLeft; x < -grids; x++)
-            {
-                for (var y =1; y <= grids; y++)
-                {
-                    var distanceWalked = ((Math.Abs(x) - 1) * cols) + ((Math.Abs(y) - 1) * rows);
-                    distanceWalked += lowerLeft + 2;
-                    toggle = distanceWalked % 2 == 0 ? 0 : 1;
-                    var remainingSteps = requiredSteps - distanceWalked;
-                    totalReached += cache.Lookup(DistanceCache.TopRight, toggle, remainingSteps);
-                }
-            }
-            
-            // Across the bottom
-            for (var x = (-gridsLeft); x < 0; x++)
-            {
-                for (var y = grids+1; y <= gridsUp; y++)
-                {
-                    var distanceWalked = ((Math.Abs(x) - 1) * cols) + ((Math.Abs(y) - 1) * rows);
-                    distanceWalked += lowerLeft + 2;
-                    toggle = distanceWalked % 2 == 0 ? 0 : 1;
-                    var remainingSteps = requiredSteps - distanceWalked;
-                    totalReached += cache.Lookup(DistanceCache.TopRight, toggle, remainingSteps);
-                }
-            }
-            
-            
-            /////////////////////
-            // Lower Right Grid
-            /////////////////////
-            available = requiredSteps - lowerRight - 2;
-            grids = available / (cols + rows);
-            evens = (grids * grids) / 2;
-            odds = (grids * grids) - evens;
-            
-            totalReached += (ulong)(odds * distancesTopLeft.Count(d => d % 2 == 1 && d != int.MaxValue));
-            totalReached += (ulong)(evens * distancesTopLeft.Count(d => d % 2 == 0 && d != int.MaxValue));
-            
-            // Down the right
-            for (var x = grids+1; x <= gridsLeft; x++)
-            {
-                for (var y =1; y <= grids; y++)
-                {
-                    var distanceWalked = ((Math.Abs(x) - 1) * cols) + ((Math.Abs(y) - 1) * rows);
-                    distanceWalked += lowerRight + 2;
-                    toggle = distanceWalked % 2 == 0 ? 0 : 1;
-                    var remainingSteps = requiredSteps - distanceWalked;
-                    totalReached += cache.Lookup(DistanceCache.TopLeft, toggle, remainingSteps);
-                }
-            }
-            
-            // Across the bottom
-            for (var x = 1; x <= gridsLeft; x++)
-            {
-                for (var y = grids+1; y <= gridsUp; y++)
-                {
-                    var distanceWalked = ((Math.Abs(x) - 1) * cols) + ((Math.Abs(y) - 1) * rows);
-                    distanceWalked += lowerRight + 2;
-                    toggle = distanceWalked % 2 == 0 ? 0 : 1;
-                    var remainingSteps = requiredSteps - distanceWalked;
-                    totalReached += cache.Lookup(DistanceCache.TopLeft, toggle, remainingSteps);
-                }
-            }
-
-
             // Walk to the right.  Starting at the TopRight / LowerRight
             var walked = topRight; // Take the shortest path to the top-right corner.
             walked += 1; // Then take a single step to the right, so be in the top-left corner
@@ -364,44 +217,37 @@ public class Day21_Part2
         return totalReached;
     }
 
-    private static ulong Count(int requiredSteps, int[] distances, int distanceToStart, int size)
+    private static ulong Count(int requiredSteps, int[] distances, int distanceToStart, int size, int fullEvenGrid, int fullOddGrid)
     {
-        var fullOddGrid = (ulong)distances.Count(d => d % 2 == 1 && d != int.MaxValue);
-        var fullEvenGrid = (ulong)distances.Count(d => d % 2 == 0 && d != int.MaxValue);
-        var offset = 1;
-        var walked1 = distanceToStart + 2;
+        
+        var maxOdd = distances.MaxBy(d => d % 2 == 1 && d != int.MaxValue);
+        var maxEven = distances.MaxBy(d => d % 2 == 0 && d != int.MaxValue);
+        var numberOfPartials = maxOdd / size;
+        
+        var walked = distanceToStart + 2;
 
-        var fullGrids = ((requiredSteps - walked1) / size);
-        var partial = (requiredSteps - walked1) - (fullGrids * size);
+        var remaining = requiredSteps - walked;
+        var fullGrids = (remaining / size)-1;
+        
+        var partial = remaining - (fullGrids * size);
         var toggle = partial % 2;
         var partialCount = (ulong)distances.Count(d => d % 2 == toggle && d <= partial);
+        var totalReached = partialCount * (ulong)(1+fullGrids);
 
-        var evens = (fullGrids >> 1) + offset;
-        var odds = fullGrids - evens;
-        var evenIncrease = ((ulong)evens * fullEvenGrid);
-        var oddIncrease = ((ulong)odds * fullOddGrid);
-        ulong totalReached = 0L;
-        while (walked1 <= requiredSteps)
-        {
-            totalReached += partialCount;
-            totalReached += evenIncrease;
-            totalReached += oddIncrease;
-
-            if (offset == 0)
-            {
-                offset = 1;
-                if ( oddIncrease > 0)
-                    oddIncrease -= fullOddGrid;
-            }
-            else
-            {
-                offset = 0;
-                if ( evenIncrease > 0)
-                    evenIncrease -= fullEvenGrid;                
-            }
-            walked1 += size;
-        }
-
+        partial -= size; 
+        toggle = partial % 2;
+        partialCount = (ulong)distances.Count(d => d % 2 == toggle && d <= partial);
+        totalReached += partialCount * (ulong)(2+fullGrids);
+        
+        var e = 0;
+        for (var i = 1; i <= fullGrids; i += 2)
+            e += i;
+        
+        var o = 0;
+        for (var i = 0; i <= fullGrids; i += 2)
+            o += i;
+        
+        totalReached+=((ulong)e * (ulong)fullEvenGrid) + ((ulong)o * (ulong)fullOddGrid);
         return totalReached;
     }
 
