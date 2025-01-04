@@ -40,6 +40,13 @@ public class Day21Tests
     public void Test_Part2()
     {
         var solver = new Day21_Part2();
-        Assert.Equal((ulong)0, solver.Part2("Day21/input.txt", 26501365));
+        // 596734610902877 too low
+        // 596734610917443 too low
+        // 596734610917575 too low
+        // 596734624269210
+        // 596734637620911 wrong
+        // 
+        
+        Assert.Equal((ulong)596734624269210, solver.Part2("Day21/input.txt", 26501365));
     }
 }

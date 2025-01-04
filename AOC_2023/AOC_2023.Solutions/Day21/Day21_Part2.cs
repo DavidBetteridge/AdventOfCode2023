@@ -73,72 +73,99 @@ public class Day21_Part2
             var fullOddGrid = distancesStartingInTheMiddle.Count(d => d % 2 == 1 && d != int.MaxValue);
             var fullEvenGrid = distancesStartingInTheMiddle.Count(d => d % 2 == 0 && d != int.MaxValue);
             
-            // Find the distance to the top middle and then take an 
-            // var distancesTopMiddle = CountPossibleSquares(requiredSteps, rows, cols, cols/2, 0, graph);
+            // Same distance to all edges
+            var walked1 = topMiddle + 1;
+            var fullGrids = ((requiredSteps - walked1) / size)-1;
+            var partial = (requiredSteps - walked1) - (fullGrids * size);
+            
+            // Fullgrids are 0 E 0 E or 0 E 0 or O E
+            var evens = fullGrids / 2;
+            var odds = fullGrids - evens;
+
+            if (requiredSteps % 2 == 1)
+                (evens, odds) = (odds, evens);
+            
+            totalReached = 4* (((ulong)fullOddGrid * (ulong)odds) + (ulong)(fullEvenGrid * evens));
             
             
-            totalReached = Count(requiredSteps, distancesLowerRight, topLeft, size, fullEvenGrid, fullOddGrid);
+            // 4 partials
+            totalReached += (ulong)distancesTopMiddle.Count(d => d % 2 == (partial % 2) && d <= partial);
+            totalReached += (ulong)distancesTopMiddle.Count(d => d % 2 == ((partial - rows) % 2) && d <= (partial - rows));
+            totalReached += (ulong)distancesLowerMiddle.Count(d => d % 2 == (partial % 2) && d <= partial);
+            totalReached += (ulong)distancesLowerMiddle.Count(d => d % 2 == ((partial - rows) % 2) && d <= (partial - rows));
+            totalReached += (ulong)distancesLeftMiddle.Count(d => d % 2 == (partial % 2) && d <= partial);
+            totalReached += (ulong)distancesLeftMiddle.Count(d => d % 2 == ((partial - rows) % 2) && d <= (partial - rows));
+            totalReached += (ulong)distancesRightMiddle.Count(d => d % 2 == (partial % 2) && d <= partial);
+            totalReached += (ulong)distancesRightMiddle.Count(d => d % 2 == ((partial - rows) % 2) && d <= (partial - rows));
+            
+            if (requiredSteps % 2 == 0)
+                totalReached += (ulong)fullEvenGrid;
+            else
+                totalReached += (ulong)fullOddGrid;
+            
+            totalReached += Count(requiredSteps, distancesLowerRight, topLeft, size, fullEvenGrid, fullOddGrid);
             totalReached += Count(requiredSteps, distancesLowerLeft, topRight, size, fullEvenGrid, fullOddGrid);
             totalReached += Count(requiredSteps, distancesTopRight, lowerLeft, size, fullEvenGrid, fullOddGrid);
             totalReached += Count(requiredSteps, distancesTopLeft, lowerRight, size, fullEvenGrid, fullOddGrid);
 
+          return totalReached;
          
             // Walk to the right.  Starting at the TopRight / LowerRight
-            var walked = topRight; // Take the shortest path to the top-right corner.
+            var walked = topMiddle; // Take the shortest path to the top-right corner.
             walked += 1; // Then take a single step to the right, so be in the top-left corner
             while (walked < requiredSteps)
             {
                 toggle = walked % 2 == 0 ? 0 : 1;
                 var remaining = requiredSteps - walked;
                 if (remaining >= cols*2)
-                    totalReached += (ulong)distancesTopLeft.Count(d => d % 2 == toggle && d <= remaining);
+                    totalReached += (ulong)distancesLowerMiddle.Count(d => d % 2 == (remaining % 2) && d <= remaining);
                 else
                 {
-                    var fromAbove = distancesTopLeft.Select((d,i) => new {d,i})
-                        .Where(d => d.d % 2 == toggle && d.d <= remaining)
+                    totalReached += (ulong)distancesLowerMiddle.Select((d,i) => new {d,i})
+                        .Where(d => d.d % 2 == (remaining % 2) && d.d <= remaining)
                         .Select(d=> d.i)
-                        .ToHashSet();
+                        .Count();
                     
-                    var fromBelow = distancesLowerLeft.Select((d,i) => new {d,i})
-                        .Where(d => d.d % 2 == toggle && d.d <= ((remaining + topRight) - lowerRight))
-                        .Select(d=> d.i)
-                        .ToHashSet();
+                    // var fromBelow = distancesLowerLeft.Select((d,i) => new {d,i})
+                    //     .Where(d => d.d % 2 == toggle && d.d <= ((remaining + topRight) - lowerRight))
+                    //     .Select(d=> d.i)
+                    //     .ToHashSet();
                     
-                    totalReached += (ulong)fromAbove.Concat(fromBelow).ToHashSet().Count();
+                  //  totalReached += (ulong)fromAbove.Concat(fromBelow).ToHashSet().Count();
                 }
                 
                 walked += cols;
             }
 
             // Walk to the left.  Starting at TopLeft / LowerLeft
-            walked = topLeft; // Take the shortest path to the top-left corner.
+            walked = topMiddle; // Take the shortest path to the top-left corner.
             walked += 1; // Then take a single step to the left, so be in the top-right corner
             while (walked < requiredSteps)
             {
                 toggle = walked % 2 == 0 ? 0 : 1;
                 var remaining = requiredSteps - walked;
                 if (remaining >= cols*2)
-                    totalReached += (ulong)distancesTopRight.Count(d => d % 2 == toggle && d <= remaining);
+                    totalReached += (ulong)distancesTopMiddle.Count(d => d % 2 == (remaining % 2) && d <= remaining);
                 else
                 {
-                    var fromAbove = distancesTopRight.Select((d,i) => new {d,i})
-                        .Where(d => d.d % 2 == toggle && d.d <= remaining)
+                    totalReached += (ulong)distancesTopMiddle.Select((d,i) => new {d,i})
+                        .Where(d => d.d % 2 == (remaining % 2) && d.d <= remaining)
                         .Select(d=> d.i)
-                        .ToHashSet();
+                        .Count();
                     
-                    var fromBelow = distancesLowerRight.Select((d,i) => new {d,i})
-                        .Where(d => d.d % 2 == toggle && d.d <= remaining + topLeft - lowerLeft )
-                        .Select(d=> d.i)
-                        .ToHashSet();
-                    
-                    totalReached += (ulong)fromAbove.Concat(fromBelow).ToHashSet().Count();
+                    // var fromBelow = distancesLowerRight.Select((d,i) => new {d,i})
+                    //     .Where(d => d.d % 2 == toggle && d.d <= remaining + topLeft - lowerLeft )
+                    //     .Select(d=> d.i)
+                    //     .ToHashSet();
+                    //
+                    // totalReached += (ulong)fromAbove.Concat(fromBelow).ToHashSet().Count();
                 }
                 
                 walked += cols;
             }
 
             // Walk up.  Starting TopLeft / TopRight
-            walked = topLeft; // Take the shortest path to the top-left corner.
+            walked = topMiddle; // Take the shortest path to the top-left corner.
             walked += 1; // Then take a single step up, so be in the lower-left corner
             while (walked < requiredSteps)
             {
@@ -146,27 +173,27 @@ public class Day21_Part2
              
                 var remaining = requiredSteps - walked;
                 if (remaining >= cols*2)
-                    totalReached += (ulong)distancesLowerLeft.Count(d => d % 2 == toggle && d <= remaining);
+                    totalReached += (ulong)distancesLeftMiddle.Count(d => d % 2 == (remaining % 2) && d <= remaining);
                 else
                 {
-                    var fromAbove = distancesLowerLeft.Select((d,i) => new {d,i})
-                        .Where(d => d.d % 2 == toggle && d.d <= remaining)
+                    totalReached += (ulong)distancesLeftMiddle.Select((d,i) => new {d,i})
+                        .Where(d => d.d % 2 == (remaining % 2) && d.d <= remaining)
                         .Select(d=> d.i)
-                        .ToHashSet();
+                        .Count();
                     
-                    var fromBelow = distancesLowerRight.Select((d,i) => new {d,i})
-                        .Where(d => d.d % 2 == toggle && d.d <= ((remaining + topLeft) - topRight))
-                        .Select(d=> d.i)
-                        .ToHashSet();
-                    
-                    totalReached += (ulong)fromAbove.Concat(fromBelow).ToHashSet().Count();
+                    // var fromBelow = distancesLowerRight.Select((d,i) => new {d,i})
+                    //     .Where(d => d.d % 2 == toggle && d.d <= ((remaining + topLeft) - topRight))
+                    //     .Select(d=> d.i)
+                    //     .ToHashSet();
+                    //
+                    // totalReached += (ulong)fromAbove.Concat(fromBelow).ToHashSet().Count();
                 }
                 
                 walked += rows;
             }
 
             // Walk down.  Starting at tLowerLeft / LowerRight
-            walked = lowerLeft; // Take the shortest path to the top-left corner.
+            walked = topMiddle; // Take the shortest path to the top-left corner.
             walked += 1; // Then take a single step down, so be in the top-left corner
             while (walked < requiredSteps)
             {
@@ -174,20 +201,21 @@ public class Day21_Part2
                
                var remaining = requiredSteps - walked;
                if (remaining >= cols*2)
-                   totalReached += (ulong)distancesTopLeft.Count(d => d % 2 == toggle && d <= remaining);
+                   totalReached += (ulong)distancesRightMiddle.Count(d => d % 2 == (remaining % 2) && d <= remaining);
                else
                {
-                   var fromAbove = distancesTopLeft.Select((d,i) => new {d,i})
-                       .Where(d => d.d % 2 == toggle && d.d <= remaining)
+                   totalReached += (ulong)distancesRightMiddle.Select((d,i) => new {d,i})
+                       .Where(d => d.d % 2 == (remaining % 2) && d.d <= remaining)
                        .Select(d=> d.i)
-                       .ToHashSet();
+                       .Count();
+
                     
-                   var fromBelow = distancesTopRight.Select((d,i) => new {d,i})
-                       .Where(d => d.d % 2 == toggle && d.d <= ((remaining + lowerLeft) - lowerRight))
-                       .Select(d=> d.i)
-                       .ToHashSet();
-                    
-                   totalReached += (ulong)fromAbove.Concat(fromBelow).ToHashSet().Count();
+                   // var fromBelow = distancesTopRight.Select((d,i) => new {d,i})
+                   //     .Where(d => d.d % 2 == toggle && d.d <= ((remaining + lowerLeft) - lowerRight))
+                   //     .Select(d=> d.i)
+                   //     .ToHashSet();
+                   //  
+                   // totalReached += (ulong)fromAbove.Concat(fromBelow).ToHashSet().Count();
                }
                
                
@@ -203,6 +231,8 @@ public class Day21_Part2
 
     private static ulong Count(int requiredSteps, int[] distances, int distanceToStart, int size, int fullEvenGrid, int fullOddGrid)
     {
+      //  var m1 =  distances.Where(d => d != int.MaxValue).Max();
+        
         var walked = distanceToStart + 2;
 
         var remaining = requiredSteps - walked;
@@ -218,15 +248,23 @@ public class Day21_Part2
         partialCount = (ulong)distances.Count(d => d % 2 == toggle && d <= partial);
         totalReached += partialCount * (ulong)(2+fullGrids);
         
-        var e = 0L;
+        // partial -= size; 
+        // toggle = partial % 2;
+        // partialCount = (ulong)distances.Count(d => d % 2 == toggle && d <= partial);
+        // totalReached += partialCount * (ulong)(3+fullGrids);
+        
+        var evens = 0L;
         for (var i = 1; i <= fullGrids; i += 2)
-            e += i;
+            evens += i;
         
-        var o = 0L;
+        var odds = 0L;
         for (var i = 0; i <= fullGrids; i += 2)
-            o += i;
+            odds += i;
         
-        totalReached+=((ulong)e * (ulong)fullEvenGrid) + ((ulong)o * (ulong)fullOddGrid);
+        if (requiredSteps % 2 == 1)
+            (evens, odds) = (odds, evens);
+        
+        totalReached+=((ulong)evens * (ulong)fullEvenGrid) + ((ulong)odds * (ulong)fullOddGrid);
         return totalReached;
     }
 
